@@ -15,6 +15,7 @@ class shapeManipulationClass(QWidget):
         self.init_plot()
 
     def test_function(self):
+        print("test code again")
         pass
     
     def init_UI(self):
