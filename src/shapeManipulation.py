@@ -10,22 +10,9 @@ class shapeManipulationClass(QWidget):
         self.drill_diameter = 0
         self.parent = parent
 
-
         self.init_UI()
         self.init_plot()
-
-    def test_function(self):
-        print("test code again")
-        pass
-    
-    def test_function(self):
-        print("test code again")
-        pass
-
-    def test_function(self):
-        print("test code again")
-        pass
-    
+ 
     def init_UI(self):
         self.main_grid_layout = QGridLayout()
         self.buttons_horizontal_layout_first_row = QHBoxLayout()
@@ -44,13 +31,11 @@ class shapeManipulationClass(QWidget):
         self.left_vertical_miniFigures_layout.setLayout(self.inside_left_vertical_miniFigures_layout)
         self.parent.add_to_layout(self.left_vertical_miniFigures_layout, self.main_grid_layout, 2,0,7,2)
 
-
         self.btn_plot = self.parent.create_button(self.update_plot, self.buttons_horizontal_layout_first_row,"Genereaza Piloni 3D")
         self.btn_clear = self.parent.create_button(self.clear_plot, self.buttons_horizontal_layout_first_row,"Șterge Graficul")
 
         self.create_roundFigure = self.parent.create_button(self.create_miniFigure_round, self.buttons_horizontal_layout_first_row, "Gaura")
         self.create_parallelipipedFigure = self.parent.create_button(self.create_miniFigure_parallelipiped, self.buttons_horizontal_layout_first_row, "Paralelipiped")
-
 
         self.setLayout(self.main_grid_layout)
 
