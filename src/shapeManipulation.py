@@ -14,6 +14,9 @@ class shapeManipulationClass(QWidget):
         self.init_UI()
         self.init_plot()
 
+    def test_function(self):
+        pass
+    
     def init_UI(self):
         self.main_grid_layout = QGridLayout()
         self.buttons_horizontal_layout_first_row = QHBoxLayout()
@@ -24,11 +27,7 @@ class shapeManipulationClass(QWidget):
         self.left_vertical_miniFigures_layout = QWidget()
         self.inside_left_vertical_miniFigures_layout = QGridLayout()
 
-
-
-
         self.parent.add_to_layout(self.buttons_horizontal_layout_first_row, self.main_grid_layout, 0,0,1,9)
-
 
         self.plot_container_widget.setLayout(self.plot_container_layout)
         self.parent.add_to_layout(self.plot_container_widget, self.main_grid_layout, 2,2,7,7)
