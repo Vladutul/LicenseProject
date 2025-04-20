@@ -21,6 +21,10 @@ class shapeManipulationClass(QWidget):
     def test_function(self):
         print("test code again")
         pass
+
+    def test_function(self):
+        print("test code again")
+        pass
     
     def init_UI(self):
         self.main_grid_layout = QGridLayout()
