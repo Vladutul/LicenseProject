@@ -18,6 +18,10 @@ class shapeManipulationClass(QWidget):
         print("test code again")
         pass
     
+    def test_function(self):
+        print("test code again")
+        pass
+    
     def init_UI(self):
         self.main_grid_layout = QGridLayout()
         self.buttons_horizontal_layout_first_row = QHBoxLayout()
