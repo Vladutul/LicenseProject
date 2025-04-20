@@ -76,9 +76,12 @@ class classUIinitialization(QMainWindow):
         if parent_layout is None:
             print("Error: parent_layout is None")
             return
+
         if isinstance(parent_layout, QGridLayout):
             if grid_row is None: grid_row = 0
             if grid_col is None: grid_col = 0
+            if rowspan == 0: rowspan = 1
+            if colspan == 0: colspan = 1
             if isinstance(child, QLayout):
                 parent_layout.addLayout(child, grid_row, grid_col, rowspan, colspan)
             elif isinstance(child, QWidget):
@@ -95,6 +98,7 @@ class classUIinitialization(QMainWindow):
                 print("Error: child is neither QLayout nor QWidget")
 
 
+
     def create_text_box(self, layout):
         textbox = QLineEdit()
         textbox.move(20, 20)
@@ -102,10 +106,10 @@ class classUIinitialization(QMainWindow):
         self.add_to_layout(textbox, layout)
         return textbox
 
-    def create_button(self, function, layout, name):
+    def create_button(self, function, layout, name, row=0, col=0):
         button = QPushButton(name)
         button.clicked.connect(lambda: function())
-        self.add_to_layout(button, layout)
+        self.add_to_layout(button, layout, row, col)
         return button
 
     def create_combo_box(self, connect_function, layout):
