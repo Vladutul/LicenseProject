@@ -4,7 +4,7 @@ import pyqtgraph.opengl as gl
 
 
 class createMiniFigure:
-    def __init__(self, container, plot_shapes_values_dictionary, input_boxes, parent_layout, parent=None):
+    def __init__(self, plot_shapes_values_dictionary, input_boxes, parent_layout, parent=None):
         self.plot_shapes_values_dictionary = plot_shapes_values_dictionary
         self.input_boxes = input_boxes
         self.parent_layout = parent_layout
