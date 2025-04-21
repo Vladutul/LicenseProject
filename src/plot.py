@@ -1,3 +1,5 @@
+import pyqtgraph.opengl as gl
+import numpy as np
 
 
 class PlotManager:

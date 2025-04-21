@@ -1,6 +1,5 @@
 from qtpy.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QGridLayout, QScrollArea, QPushButton
-import pyqtgraph.opengl as gl
-import numpy as np
+from plot import PlotManager
 from miniFigure import createMiniFigure
 
 class shapeManipulationClass(QWidget):
