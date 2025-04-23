@@ -10,9 +10,7 @@ class shapeManipulationClass(QWidget):
         self.input_boxes = {}
         self.plot_shapes_values_dictionary = {}
         self.mini_instances = []
-
         self.init_UI()
-        self.init_plot()
 
     def init_UI(self):
         self.main_grid_layout = QGridLayout()
@@ -23,8 +21,6 @@ class shapeManipulationClass(QWidget):
 
         self.left_vertical_mini_widget = QWidget()
         self.vertical_mini_layout = QVBoxLayout()
-
-        # Conține casetele + ploturile ca un widget orizontal
         self.inside_vertical_mini_layout = QHBoxLayout()
 
         # Adaugă butoanele în layoutul principal
@@ -53,10 +49,8 @@ class shapeManipulationClass(QWidget):
         self.create_parallelipipedFigure = self.parent.create_button(self.parallelipiped_figure_wrapper, self.buttons_horizontal_layout_first_row, "Paralelipiped")
 
         self.setLayout(self.main_grid_layout)
-
     
     def parallelipiped_figure_wrapper(self):
-        # Creează o instanță nouă de createMiniFigure
         mini = createMiniFigure(
             plot_shapes_values_dictionary=self.plot_shapes_values_dictionary,
             input_boxes=self.input_boxes,
@@ -64,51 +58,9 @@ class shapeManipulationClass(QWidget):
             parent=self.parent
         )
         
-        # Creează paralelipipedul (acesta va actualiza plot-ul)
         mini.create_miniFigure_parallelipiped()
 
-        # Păstrează instanța în listă pentru a o gestiona mai ușor
         self.mini_instances.append(mini)
-        #self.plot_drill_parallelepiped()
-
-    def init_plot(self):
-        self.plot_manager = PlotManager(self.plot_container_widget)
-        self.plot_drillplate((0.5, 0.5, 0.5, 1), 0, 30, 0, 20, 0, 2.5)
-        self.plot_drill_parallelepiped((0, 3, 1, 0.4), 1, 10, 1, 7, 0, 2.5)    
-        #self.create_drill_surface_plot((0, 2, 3, 0.4), 1, 10, 1, 7, 0, 2.5)
-
-        self.plot_manager.plot_cylinder(x_center=15, y_center=15, z_min=0, height=2.6, radius=2, color=(1, 0, 0, 0.8))
-
-        self.update_plot()
-
-    def plot_drill_parallelepiped(self, color_rgba, x_min, x_max, y_min, y_max, z_min, z_max):
-        id = len(self.plot_shapes_values_dictionary)
-        key = f"{id}_drillparallelipiped_topMask"
-
-        self.plot_shapes_values_dictionary[key] = (color_rgba, x_min, x_max, y_min, y_max, z_min - 0.01, z_max + 0.01)
-
-        key = f"{id}_drillparallelipiped_bottomMask"
-        self.plot_shapes_values_dictionary[key] = (color_rgba, x_min, x_max, y_min, y_max, z_min + 0.01, z_max - 0.01)
-
-        #self.check_for_z_fighting()
-
-    def plot_drillplate(self, color_rgba, x_min, x_max, y_min, y_max, z_min, z_max):
-        id = len(self.plot_shapes_values_dictionary)
-        key = f"{id}_drillplate"
-
-        self.plot_shapes_values_dictionary[key] = (color_rgba, x_min, x_max, y_min, y_max, z_min, z_max)
-
-    def check_for_z_fighting(self):
-        offset = 0.09
-
-        for key, (color, x_min, x_max, y_min, y_max, z_min, z_max) in self.plot_shapes_values_dictionary.items():
-            adjusted_z_min = z_min + offset
-            adjusted_z_max = z_max - offset
-            self.plot_shapes_values_dictionary[key] = (color, x_min, x_max, y_min, y_max, adjusted_z_min, adjusted_z_max)
-
-    def remove_drill_surface(self, key):
-        if key in self.plot_shapes_values_dictionary:
-            del self.plot_shapes_values_dictionary[key]
 
     def clear_plot(self):
-        self.plot_manager.clear()
+        self.plot_manager.clear_plot()

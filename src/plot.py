@@ -81,6 +81,41 @@ class PlotManager:
         self.view.addItem(mesh)
         self.items.append(mesh)
 
+    def plot_drillplate(self, color_rgba, x_min, x_max, y_min, y_max, z_min, z_max):
+        id = len(self.plot_shapes_values_dictionary)
+        key = f"{id}_drillplate"
+
+        self.plot_shapes_values_dictionary[key] = (color_rgba, x_min, x_max, y_min, y_max, z_min, z_max)
+
+    def plot_drill_parallelepiped(self, color_rgba, x_min, x_max, y_min, y_max, z_min, z_max):
+        id = len(self.plot_shapes_values_dictionary)
+        key = f"{id}_drillparallelipiped_topMask"
+
+        self.plot_shapes_values_dictionary[key] = (color_rgba, x_min, x_max, y_min, y_max, z_min - 0.01, z_max + 0.01)
+
+        key = f"{id}_drillparallelipiped_bottomMask"
+        self.plot_shapes_values_dictionary[key] = (color_rgba, x_min, x_max, y_min, y_max, z_min + 0.01, z_max - 0.01)
+
+        #self.check_for_z_fighting()
+
+    def check_for_z_fighting(self):
+        offset = 0.09
+
+        for key, (color, x_min, x_max, y_min, y_max, z_min, z_max) in self.plot_shapes_values_dictionary.items():
+            adjusted_z_min = z_min + offset
+            adjusted_z_max = z_max - offset
+            self.plot_shapes_values_dictionary[key] = (color, x_min, x_max, y_min, y_max, adjusted_z_min, adjusted_z_max)
+ 
+    def init_plot(self):
+        self.plot_manager = PlotManager(self.plot_container_widget)
+        self.plot_drillplate((0.5, 0.5, 0.5, 1), 0, 30, 0, 20, 0, 2.5)
+        self.plot_drill_parallelepiped((0, 3, 1, 0.4), 1, 10, 1, 7, 0, 2.5)    
+        #self.create_drill_surface_plot((0, 2, 3, 0.4), 1, 10, 1, 7, 0, 2.5)
+
+        self.plot_manager.plot_cylinder(x_center=15, y_center=15, z_min=0, height=2.6, radius=2, color=(1, 0, 0, 0.8))
+
+        self.update_plot()
+
     def update_plot(self):
         self.clear()
         self.plot_cylinder(x_center=15, y_center=15, z_min=0, height=2.5, radius=2, color=(1, 0, 0, 0.8))
@@ -89,7 +124,7 @@ class PlotManager:
             color, x_min, x_max, y_min, y_max, z_min, z_max = val
             self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color=color)
 
-    def clear(self):
+    def clear_plot(self):
         for item in self.items:
             self.view.removeItem(item)
         self.items.clear()
