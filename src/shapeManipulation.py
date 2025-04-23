@@ -50,17 +50,30 @@ class shapeManipulationClass(QWidget):
 
         self.setLayout(self.main_grid_layout)
     
+    def update_plot(self):
+        self.plotManager = PlotManager(self.plot_container_widget)
+        self.plotManager.update_plot()
+
+    def clear_plot(self):
+        self.plotManager = PlotManager(self.plot_container_widget)
+        self.plotManager.clear_plot()
+
     def parallelipiped_figure_wrapper(self):
+        mini = self.mini_create_wrapper()
+        mini.create_miniFigure_parallelipiped()
+        self.mini_instances.append(mini)
+
+    def roundShape_figure_wrapper(self):
+        mini = self.mini_create_wrapper()
+        mini.create_miniFigure_roundHole()
+        self.mini_instances.append(mini)
+
+    def mini_create_wrapper(self):
         mini = createMiniFigure(
             plot_shapes_values_dictionary=self.plot_shapes_values_dictionary,
             input_boxes=self.input_boxes,
             parent_layout=self.vertical_mini_layout,
             parent=self.parent
         )
-        
-        mini.create_miniFigure_parallelipiped()
 
-        self.mini_instances.append(mini)
-
-    def clear_plot(self):
-        self.plot_manager.clear_plot()
+        return mini

@@ -14,33 +14,6 @@ class createMiniFigure:
         self.view_miniFigure.setCameraPosition(distance=20)
         self.items_miniFigure = []
 
-    def plot_box_miniFigure(self, x_min, x_max, y_min, y_max, z_min, z_max, color=(0.5, 0.5, 1, 0.5)):
-        verts = np.array([
-            [x_min, y_min, z_min],
-            [x_max, y_min, z_min],
-            [x_max, y_max, z_min],
-            [x_min, y_max, z_min],
-            [x_min, y_min, z_max],
-            [x_max, y_min, z_max],
-            [x_max, y_max, z_max],
-            [x_min, y_max, z_max]
-        ])
-
-        faces = np.array([
-            [0, 1, 2], [0, 2, 3],  # bottom
-            [4, 5, 6], [4, 6, 7],  # top
-            [0, 1, 5], [0, 5, 4],  # front
-            [2, 3, 7], [2, 7, 6],  # back
-            [1, 2, 6], [1, 6, 5],  # right
-            [3, 0, 4], [3, 4, 7],  # left
-        ])
-
-        mesh = gl.GLMeshItem(vertexes=verts, faces=faces,
-                             faceColors=np.array([color] * len(faces)),
-                             smooth=False, drawEdges=True, edgeColor=(0, 0, 0, 1))
-        self.view_miniFigure.addItem(mesh)
-        self.items_miniFigure.append(mesh)
-
     def create_miniFigure_parallelipiped(self):
         id = len(self.plot_shapes_values_dictionary)
         key = f"id_{id}"
@@ -49,12 +22,13 @@ class createMiniFigure:
         color = (0, 3, 1, 0.4)
 
         self.plot_shapes_values_dictionary[key] = {
+            'shape': 'parallelipiped',
             'real_values': (x1, x2, y1, y2, z1, z2, color),
             'top_mask': None,
             'bottom_mask': None
         }
 
-        self.plot_box_miniFigure(x1, x2, y1, y2, z1, z2, color)
+        self.plot_miniFigure_parallelipiped(x1, x2, y1, y2, z1, z2, color)
         self.input_boxes[key] = {}
 
         mini_grid_layout = QGridLayout()
@@ -82,8 +56,35 @@ class createMiniFigure:
 
         mini_grid_layout.addWidget(self.view_miniFigure, 0, 1, 8, 1)
         self.parent_layout.addWidget(mini_widget)
-    
-    def edit_shape_values_parallelipiped(self, key, miniFigure = None):
+
+    def plot_miniFigure_parallelipiped(self, x_min, x_max, y_min, y_max, z_min, z_max, color=(0.5, 0.5, 1, 0.5)):
+        verts = np.array([
+            [x_min, y_min, z_min],
+            [x_max, y_min, z_min],
+            [x_max, y_max, z_min],
+            [x_min, y_max, z_min],
+            [x_min, y_min, z_max],
+            [x_max, y_min, z_max],
+            [x_max, y_max, z_max],
+            [x_min, y_max, z_max]
+        ])
+
+        faces = np.array([
+            [0, 1, 2], [0, 2, 3],  # bottom
+            [4, 5, 6], [4, 6, 7],  # top
+            [0, 1, 5], [0, 5, 4],  # front
+            [2, 3, 7], [2, 7, 6],  # back
+            [1, 2, 6], [1, 6, 5],  # right
+            [3, 0, 4], [3, 4, 7],  # left
+        ])
+
+        mesh = gl.GLMeshItem(vertexes=verts, faces=faces,
+                             faceColors=np.array([color] * len(faces)),
+                             smooth=False, drawEdges=True, edgeColor=(0, 0, 0, 1))
+        self.view_miniFigure.addItem(mesh)
+        self.items_miniFigure.append(mesh)
+
+    def edit_shapeValues_parallelipiped(self, key, miniFigure = None):
         try:
             boxes = self.input_boxes[key]
 
@@ -97,7 +98,108 @@ class createMiniFigure:
             color = self.plot_shapes_values_dictionary[key]['real_values'][-1]  # Retain the original color
 
             self.plot_shapes_values_dictionary[key]['real_values'] = (x1, x2, y1, y2, z1, z2, color)
-            #miniFigure.plot_box_miniFigure(x1, x2, y1, y2, z1, z2, color)
+            #miniFigure.plot_miniFigure_parallelipiped(x1, x2, y1, y2, z1, z2, color)
+
+        except ValueError:
+            print("Invalid input: please enter valid numbers.")
+
+    def create_miniFigure_roundHole(self):
+        id = len(self.plot_shapes_values_dictionary)
+        key = f"id_{id}"
+
+        x_center, y_center, z_min, height, radius = 15, 15, 0, 2.6, 2
+        color = (1, 0, 0, 0.8)
+
+        self.plot_shapes_values_dictionary[key] = {
+            'shape': 'roundHole',
+            'real_values': (x_center, y_center, z_min, height, radius, color),
+            'top_mask': None,
+            'bottom_mask': None
+        }
+
+        self.plot_miniFigure_roundHole(x_center, y_center, z_min, height, radius, color)
+        self.input_boxes[key] = {}
+
+        mini_grid_layout = QGridLayout()
+        mini_widget = QWidget()
+        mini_widget.setLayout(mini_grid_layout)
+        mini_widget.setFixedSize(300, 250)
+
+        labels = ['x_center', 'y_center', 'z_min', 'height', 'radius']
+        default_values = [x_center, y_center, z_min, height, radius]
+
+        edit_button = self.parent.create_button(
+            lambda k=key: self.edit_shapeValues_roundHole(k), mini_grid_layout, "Edit", 0, 0)
+        remove_button = self.parent.create_button(
+            lambda k=key, w=mini_widget: self.remove_shape(k, w), mini_grid_layout, "Remove", 1, 0)
+
+        edit_button.setFixedSize(50, 25)
+        remove_button.setFixedSize(50, 25)
+
+        for i, (label, value) in enumerate(zip(labels, default_values), start=2):
+            line_edit = QLineEdit(str(value))
+            line_edit.setFixedWidth(50)
+            self.input_boxes[key][label] = line_edit
+            mini_grid_layout.addWidget(line_edit, i, 0)
+            line_edit.editingFinished.connect(lambda l=label, k=key: self.edit_shapeValues_roundHole(k))
+
+        mini_grid_layout.addWidget(self.view_miniFigure, 0, 1, 8, 1)
+        self.parent_layout.addWidget(mini_widget)
+
+    def plot_miniFigure_roundHole(self, x_center, y_center, z_min, height, radius, color):
+        resolution = 100
+        offset = 0.2
+        height += offset
+
+        theta = np.linspace(0, 2 * np.pi, resolution)
+        x_circle = radius * np.cos(theta)
+        y_circle = radius * np.sin(theta)
+
+        bottom = np.vstack((x_circle + x_center, y_circle + y_center, np.full_like(theta, z_min))).T
+        top = np.vstack((x_circle + x_center, y_circle + y_center, np.full_like(theta, z_min + height))).T
+
+        vertices = np.vstack((bottom, top))
+        center_bottom = [x_center, y_center, z_min]
+        center_top = [x_center, y_center, z_min + height]
+        vertices = np.vstack((vertices, center_bottom, center_top))
+
+        faces = []
+        for i in range(resolution):
+            next_i = (i + 1) % resolution
+            faces.append([i, next_i, resolution + next_i])  # Side faces
+            faces.append([i, resolution + next_i, resolution + i])  # Side faces
+
+        for i in range(resolution):
+            next_i = (i + 1) % resolution
+            faces.append([i, next_i, 2 * resolution])  # Bottom face
+
+        for i in range(resolution):
+            next_i = (i + 1) % resolution
+            faces.append([i + resolution, next_i + resolution, 2 * resolution + 1])  # Top face
+
+        faces = np.array(faces)
+
+        mesh = gl.GLMeshItem(vertexes=vertices, faces=faces,
+                            faceColors=np.array([color] * len(faces)),
+                            smooth=False, drawEdges=True, edgeColor=(0, 0, 0, 1))
+        mesh.setGLOptions('translucent')
+        self.view_miniFigure.addItem(mesh)
+        self.items_miniFigure.append(mesh)
+
+    def edit_shapeValues_roundHole(self, key):
+        try:
+            boxes = self.input_boxes[key]
+
+            x_center = float(boxes['x_center'].text())
+            y_center = float(boxes['y_center'].text())
+            z_min = float(boxes['z_min'].text())
+            height = float(boxes['height'].text())
+            radius = float(boxes['radius'].text())
+
+            color = self.plot_shapes_values_dictionary[key]['real_values'][-1]  # Retain the original color
+
+            self.plot_shapes_values_dictionary[key]['real_values'] = (x_center, y_center, z_min, height, radius, color)
+            self.plot_miniFigure_roundHole(x_center, y_center, z_min, height, radius, color)
 
         except ValueError:
             print("Invalid input: please enter valid numbers.")
@@ -107,9 +209,4 @@ class createMiniFigure:
             del self.plot_shapes_values_dictionary[key]
         if key in self.input_boxes:
             del self.input_boxes[key]
-        widget.setParent(None)  # Șterge widget-ul din interfață
-
-    def create_shape_round(self):
-        pass
-    def edit_existing_shape_round(self):
-        pass
+        widget.setParent(None)
