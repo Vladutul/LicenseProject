@@ -81,6 +81,14 @@ class PlotManager:
         self.view.addItem(mesh)
         self.items.append(mesh)
 
+    def update_plot(self):
+        self.clear()
+        self.plot_cylinder(x_center=15, y_center=15, z_min=0, height=2.5, radius=2, color=(1, 0, 0, 0.8))
+
+        for val in self.plot_shapes_values_dictionary.values():
+            color, x_min, x_max, y_min, y_max, z_min, z_max = val
+            self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color=color)
+
     def clear(self):
         for item in self.items:
             self.view.removeItem(item)

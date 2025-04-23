@@ -109,8 +109,6 @@ class createMiniFigure:
             del self.input_boxes[key]
         widget.setParent(None)  # Șterge widget-ul din interfață
 
-    def create_shape(self, object):
-        pass
     def create_shape_round(self):
         pass
     def edit_existing_shape_round(self):
