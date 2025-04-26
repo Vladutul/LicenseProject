@@ -9,7 +9,7 @@ class PlotManager:
         container.layout().addWidget(self.view)
 
         grid = gl.GLGridItem()
-        grid.setSize(100, 100)
+        grid.setSize(7000, 7000)
         grid.setSpacing(5, 5)
         self.view.addItem(grid)
 
@@ -81,12 +81,11 @@ class PlotManager:
         mesh.setGLOptions('translucent')
         self.view.addItem(mesh)
         self.items.append(mesh)
- 
-    def update_plot(self):
+
+    """    def update_plot(self):
         # Clear the plot before updating
         self.clear_plot()
 
-        # Iterate through all shapes in the dictionary
         for key, val in self.plot_shapes_values_dictionary.items():
             shape_type = val.get('shape')
             real_values = val.get('real_values')
@@ -109,7 +108,50 @@ class PlotManager:
             # Plot the bottom mask if it exists
             if bottom_mask:
                 x_min, x_max, y_min, y_max, z_min, z_max = bottom_mask
-                self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color=(1, 0, 0, 0.5))  # Red for bottom mask
+                self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color=(1, 0, 0, 0.5))  # Red for bottom mask"""
+
+    def check_if_in_drillplate(self, x, y, z):
+        x_min, x_max, y_min, y_max, z_min, z_max = self.plot_shapes_values_dictionary['drillplate']['real_values']
+        return x_min <= x <= x_max and y_min <= y <= y_max and z_min <= z <= z_max
+
+    def update_plot(self):
+        self.clear_plot()
+
+        def plot_mask_parallelipiped(x_min, x_max, y_min, y_max, z_min, z_max, color):
+            self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color=color)
+
+        def plot_mask_cylinder(x_center, y_center, z_min, height, radius, color):
+            self.plot_cylinder(x_center, y_center, z_min, height, radius, color=color)
+
+        for key, val in self.plot_shapes_values_dictionary.items():
+            shape_type = val.get('shape')
+            real_values = val.get('real_values')
+            top_mask = val.get('top_mask')
+            bottom_mask = val.get('bottom_mask')
+
+            if shape_type == 'parallelipiped':
+                x_min, x_max, y_min, y_max, z_min, z_max, color = real_values
+                self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color=(0.5, 0.5, 1, 0.5))
+
+                if top_mask:
+                    x_min, x_max, y_min, y_max, z_min, z_max = top_mask
+                    plot_mask_parallelipiped(x_min, x_max, y_min, y_max, z_min, z_max, color=(0, 1, 0, 0.5))
+
+                if bottom_mask:
+                    x_min, x_max, y_min, y_max, z_min, z_max = bottom_mask
+                    plot_mask_parallelipiped(x_min, x_max, y_min, y_max, z_min, z_max, color=(1, 0, 0, 0.5))
+                
+            elif shape_type == 'roundHole':
+                x_center, y_center, z_min, height, radius, color = real_values
+                self.plot_cylinder(x_center, y_center, z_min, height, radius, color=color)
+
+                if top_mask:
+                    x_center, y_center, z_min, height, radius, color = top_mask
+                    plot_mask_cylinder(x_center, y_center, z_min, height, radius, color=color)
+                
+                if bottom_mask:
+                    x_center, y_center, z_min, height, radius, color = bottom_mask
+                    plot_mask_cylinder(x_center, y_center, z_min, height, radius, color=color)
 
 
     def clear_plot(self):

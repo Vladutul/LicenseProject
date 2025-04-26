@@ -11,27 +11,27 @@ class classUIinitialization(QMainWindow):
 
         self.setGeometry(100, 100, 1600, 900)        
 
-        self.centralWidget = QWidget()
-        self.serialConnectionDock = serialConnectionClass(self, self.centralWidget)
+        self.centralWidget = QWidget()        
         self.shapeManiputationDock = shapeManipulationClass(self, self.centralWidget)
+        self.serialConnectionDock = serialConnectionClass(self, self.centralWidget)
         self.connectionWindowDock = connectionWindowClass(self, self.centralWidget)
 
         self.dock_widgets = {
             "SerialConnection": {
                 "widget": self.serialConnectionDock.serialConnectionFrontend,
-                "area": Qt.LeftDockWidgetArea,
+                "area": Qt.RightDockWidgetArea,
                 "dock": None,
                 "action": None
             },
             "ShapeManipulation": {
                 "widget": self.shapeManiputationDock,
-                "area": Qt.RightDockWidgetArea,
+                "area": Qt.LeftDockWidgetArea,
                 "dock": None,
                 "action": None
             },
             "ConnectionWindow": {
                 "widget": self.connectionWindowDock,
-                "area": Qt.LeftDockWidgetArea,
+                "area": Qt.RightDockWidgetArea,
                 "dock": None,
                 "action": None
             }

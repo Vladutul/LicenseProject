@@ -15,18 +15,11 @@ class createMiniFigure:
         self.view_miniFigure.setCameraPosition(distance=20)
         self.items_miniFigure = []
 
-    def change_visibleState(self, key):
-        if key in self.plot_shapes_values_dictionary:
-            state = not self.plot_shapes_values_dictionary[key]['visibleState']
-            self.plot_shapes_values_dictionary[key]['visibleState'] = state
-
-        self.shapeManipulationRefference.update_plot()
-
     def create_miniFigure_parallelipiped(self):
         id = len(self.plot_shapes_values_dictionary)
         key = f"id_{id}"
 
-        x1, x2, y1, y2, z1, z2 = 1, 10, 1, 7, 0, 2.5
+        x1, x2, y1, y2, z1, z2 = self.generate_unused_real_values_parallelipiped()
         color = (0, 3, 1, 0.4)
 
         self.plot_shapes_values_dictionary[key] = {
@@ -125,25 +118,19 @@ class createMiniFigure:
         except ValueError:
             print("Invalid input: please enter valid numbers.")
 
-    def clear_plot(self):
-        # Remove all items from the view
-        for item in self.items_miniFigure:
-            self.view_miniFigure.removeItem(item)
-        # Clear the items list
-        self.items_miniFigure.clear()
-
     def create_miniFigure_roundHole(self):
         id = len(self.plot_shapes_values_dictionary)
         key = f"id_{id}"
 
-        x_center, y_center, z_min, height, radius = 1, 1, 0, 2.6, 2
+        x_center, y_center, z_min, height, radius = self.generate_unused_real_values_roundHole()
         color = (1, 0, 0, 0.8)
 
         self.plot_shapes_values_dictionary[key] = {
             'shape': 'roundHole',
             'real_values': (x_center, y_center, z_min, height, radius, color),
             'top_mask': None,
-            'bottom_mask': None
+            'bottom_mask': None,
+            'visibleState': False
         }
 
         self.plot_miniFigure_roundHole(x_center, y_center, z_min, height, radius, color)
@@ -241,15 +228,70 @@ class createMiniFigure:
             del self.input_boxes[key]
         widget.setParent(None)
 
-    def create_masks_from_real_values(self, key):
-        mask_values = self.plot_shapes_values_dictionary[key]['real_values']
-        x_min, x_max, y_min, y_max, z_min, z_max, color = mask_values
+    def create_masks_for_real_values(self, key):
+        real_values = self.plot_shapes_values_dictionary[key]['real_values']
+        x_min, x_max, y_min, y_max, z_min, z_max, color = real_values
 
         top_mask = (x_min, x_max, y_min, y_max, z_min - 0.01, z_max + 0.01, color)
         bottom_mask = (x_min, x_max, y_min, y_max, z_min + 0.01, z_max - 0.01, color)
 
         self.plot_shapes_values_dictionary[key]['top_mask'] = top_mask
         self.plot_shapes_values_dictionary[key]['bottom_mask'] = bottom_mask
+
+    def clear_plot(self):
+        for item in self.items_miniFigure:
+            self.view_miniFigure.removeItem(item)
+        self.items_miniFigure.clear()
+
+    def generate_unused_real_values_parallelipiped(self):
+        # Extract all existing x_min and x_max ranges from real_values
+        existing_ranges = []
+        for key, data in self.plot_shapes_values_dictionary.items():
+            real_values = data.get('real_values', [])
+            if len(real_values) >= 2:  # Ensure there are at least x_min and x_max
+                x_min, x_max = real_values[:2]
+                existing_ranges.append((x_min, x_max))
+
+        # Generate new x_min and x_max values that do not overlap with existing ranges
+        x_min, x_max = -10, -3
+        while any(x_min <= existing_x_max and x_max >= existing_x_min for existing_x_min, existing_x_max in existing_ranges):
+            x_min -= 6  # Shift the range further left
+            x_max -= 6
+
+        # Default values for y_min, y_max, z_min, and z_max
+        y_min, y_max = 1, 7
+        z_min, z_max = 0, 2.5
+
+        return x_min, x_max, y_min, y_max, z_min, z_max
+
+    def generate_unused_real_values_roundHole(self):
+        # Extract all existing x_center and y_center values from real_values
+        existing_centers = []
+        for key, data in self.plot_shapes_values_dictionary.items():
+            if data.get('shape') == 'roundHole':  # Only consider round holes
+                real_values = data.get('real_values', [])
+                if len(real_values) >= 2:  # Ensure there are at least x_center and y_center
+                    x_center, y_center = real_values[:2]
+                    existing_centers.append((x_center, y_center))
+
+        # Generate new x_center and y_center values that do not overlap with existing centers
+        x_center, y_center = -3, 15
+        while any(abs(x_center - existing_x) < 2 and abs(y_center - existing_y) < 2 for existing_x, existing_y in existing_centers):
+            x_center -= 5  # Shift x_center further left
+
+        # Default values for z_min, height, and radius
+        z_min = 0
+        height = 2.6
+        radius = 2
+
+        return x_center, y_center, z_min, height, radius
+
+    def change_visibleState(self, key):
+        if key in self.plot_shapes_values_dictionary:
+            state = not self.plot_shapes_values_dictionary[key]['visibleState']
+            self.plot_shapes_values_dictionary[key]['visibleState'] = state
+
+        self.shapeManipulationRefference.update_plot()
 
     def check_for_z_fighting(self):
         offset = 0.09
