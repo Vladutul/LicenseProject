@@ -48,7 +48,7 @@ class shapeManipulationClass(QWidget):
         self.btn_clear = self.parent.create_button(self.clear_plot, self.buttons_horizontal_layout_first_row, "Șterge Graficul")
         self.create_roundFigure = self.parent.create_button(self.roundShape_figure_wrapper, self.buttons_horizontal_layout_first_row, "Gaura")
         self.create_parallelipipedFigure = self.parent.create_button(self.parallelipipedShape_figure_wrapper, self.buttons_horizontal_layout_first_row, "Paralelipiped")
-
+        self.create_drillPlateFigure = self.parent.create_button(self.parallelipipedShape_figure_wrapper, self.buttons_horizontal_layout_first_row, "DrillPlate")
         self.setLayout(self.main_grid_layout)
     
     def update_plot(self):
@@ -56,7 +56,7 @@ class shapeManipulationClass(QWidget):
 
     def clear_plot(self):
         self.plotManager.clear_plot()
-
+    
     def parallelipipedShape_figure_wrapper(self):
         mini = self.mini_create_wrapper()
         mini.create_miniFigure_parallelipiped()
