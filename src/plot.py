@@ -3,7 +3,7 @@ import numpy as np
 
 
 class PlotManager:
-    def __init__(self, container):
+    def __init__(self, container, plot_shapes_values_dictionary):
         self.view = gl.GLViewWidget()
         self.view.setCameraPosition(distance=100)
         container.layout().addWidget(self.view)
@@ -13,6 +13,7 @@ class PlotManager:
         grid.setSpacing(5, 5)
         self.view.addItem(grid)
 
+        self.plot_shapes_values_dictionary = plot_shapes_values_dictionary
         self.items = []
 
     def plot_box(self, x_min, x_max, y_min, y_max, z_min, z_max, color=(0.5, 0.5, 1, 0.5)):
@@ -80,43 +81,45 @@ class PlotManager:
         mesh.setGLOptions('translucent')
         self.view.addItem(mesh)
         self.items.append(mesh)
-
-    def plot_drillplate(self, color_rgba, x_min, x_max, y_min, y_max, z_min, z_max):
-        id = len(self.plot_shapes_values_dictionary)
-        key = f"{id}_drillplate"
-
-        self.plot_shapes_values_dictionary[key] = (color_rgba, x_min, x_max, y_min, y_max, z_min, z_max)
-
-    def create_masks_from_real_values(self, key):
-        mask_values = self.plot_shapes_values_dictionary[key]['real_values']
-        x_min, x_max, y_min, y_max, z_min, z_max, color = mask_values
-
-        top_mask = (x_min, x_max, y_min, y_max, z_min - 0.01, z_max + 0.01, color)
-        bottom_mask = (x_min, x_max, y_min, y_max, z_min + 0.01, z_max - 0.01, color)
-
-        self.plot_shapes_values_dictionary[key]['top_mask'] = top_mask
-        self.plot_shapes_values_dictionary[key]['bottom_mask'] = bottom_mask
-
-    def check_for_z_fighting(self):
-        offset = 0.09
-
-        for key, (color, x_min, x_max, y_min, y_max, z_min, z_max) in self.plot_shapes_values_dictionary.items():
-            adjusted_z_min = z_min + offset
-            adjusted_z_max = z_max - offset
-            self.plot_shapes_values_dictionary[key] = (color, x_min, x_max, y_min, y_max, adjusted_z_min, adjusted_z_max)
  
     def update_plot(self):
+        # Clear the plot before updating
         self.clear_plot()
-        self.plot_cylinder(x_center=15, y_center=15, z_min=0, height=2.5, radius=2, color=(1, 0, 0, 0.8))
 
-        for val in self.plot_shapes_values_dictionary.values():
-            color, x_min, x_max, y_min, y_max, z_min, z_max = val
-            self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color=color)
+        # Iterate through all shapes in the dictionary
+        for key, val in self.plot_shapes_values_dictionary.items():
+            shape_type = val.get('shape')
+            real_values = val.get('real_values')
+            top_mask = val.get('top_mask')
+            bottom_mask = val.get('bottom_mask')
+
+            # Plot the main shape
+            if shape_type == 'parallelipiped':
+                x_min, x_max, y_min, y_max, z_min, z_max, color = real_values
+                self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color=color)
+            elif shape_type == 'roundHole':
+                x_center, y_center, z_min, height, radius, color = real_values
+                self.plot_cylinder(x_center, y_center, z_min, height, radius, color=color)
+
+            # Plot the top mask if it exists
+            if top_mask:
+                x_min, x_max, y_min, y_max, z_min, z_max = top_mask
+                self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color=(0, 1, 0, 0.5))  # Green for top mask
+
+            # Plot the bottom mask if it exists
+            if bottom_mask:
+                x_min, x_max, y_min, y_max, z_min, z_max = bottom_mask
+                self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color=(1, 0, 0, 0.5))  # Red for bottom mask
+
 
     def clear_plot(self):
         for item in self.items:
             self.view.removeItem(item)
         self.items.clear()
+
+
+
+
 
 
 

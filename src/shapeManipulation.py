@@ -11,7 +11,8 @@ class shapeManipulationClass(QWidget):
         self.plot_shapes_values_dictionary = {}
         self.mini_instances = []
         self.init_UI()
-
+        self.plotManager = PlotManager(self.plot_container_widget, self.plot_shapes_values_dictionary)
+        
     def init_UI(self):
         self.main_grid_layout = QGridLayout()
         self.buttons_horizontal_layout_first_row = QHBoxLayout()
@@ -51,11 +52,9 @@ class shapeManipulationClass(QWidget):
         self.setLayout(self.main_grid_layout)
     
     def update_plot(self):
-        self.plotManager = PlotManager(self.plot_container_widget)
         self.plotManager.update_plot()
 
     def clear_plot(self):
-        self.plotManager = PlotManager(self.plot_container_widget)
         self.plotManager.clear_plot()
 
     def parallelipipedShape_figure_wrapper(self):

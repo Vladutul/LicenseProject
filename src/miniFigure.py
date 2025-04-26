@@ -49,7 +49,7 @@ class createMiniFigure:
         default_values = [x1, x2, y1, y2, z1, z2]
 
         show_button = self.classUIinitialization.create_button(
-            lambda k=key: self.change_visibleState(key), mini_grid_layout, "Show", 0, 0)
+            lambda k=key: self.change_visibleState(k), mini_grid_layout, "Show", 0, 0)
         remove_button = self.classUIinitialization.create_button(
             lambda k=key, w=mini_widget: self.remove_shape(k, w), mini_grid_layout, "Remove", 1, 0)
 
@@ -157,12 +157,12 @@ class createMiniFigure:
         labels = ['x_center', 'y_center', 'z_min', 'height', 'radius']
         default_values = [x_center, y_center, z_min, height, radius]
 
-        edit_button = self.classUIinitialization.create_button(
+        show_button = self.classUIinitialization.create_button(
             lambda k=key: self.change_visibleState(k), mini_grid_layout, "Edit", 0, 0)
         remove_button = self.classUIinitialization.create_button(
             lambda k=key, w=mini_widget: self.remove_shape(k, w), mini_grid_layout, "Remove", 1, 0)
 
-        edit_button.setFixedSize(50, 25)
+        show_button.setFixedSize(50, 25)
         remove_button.setFixedSize(50, 25)
 
         for i, (label, value) in enumerate(zip(labels, default_values), start=2):
@@ -228,6 +228,7 @@ class createMiniFigure:
             color = self.plot_shapes_values_dictionary[key]['real_values'][-1]  # Retain the original color
 
             self.plot_shapes_values_dictionary[key]['real_values'] = (x_center, y_center, z_min, height, radius, color)
+            self.clear_plot()
             self.plot_miniFigure_roundHole(x_center, y_center, z_min, height, radius, color)
 
         except ValueError:
@@ -239,3 +240,21 @@ class createMiniFigure:
         if key in self.input_boxes:
             del self.input_boxes[key]
         widget.setParent(None)
+
+    def create_masks_from_real_values(self, key):
+        mask_values = self.plot_shapes_values_dictionary[key]['real_values']
+        x_min, x_max, y_min, y_max, z_min, z_max, color = mask_values
+
+        top_mask = (x_min, x_max, y_min, y_max, z_min - 0.01, z_max + 0.01, color)
+        bottom_mask = (x_min, x_max, y_min, y_max, z_min + 0.01, z_max - 0.01, color)
+
+        self.plot_shapes_values_dictionary[key]['top_mask'] = top_mask
+        self.plot_shapes_values_dictionary[key]['bottom_mask'] = bottom_mask
+
+    def check_for_z_fighting(self):
+        offset = 0.09
+
+        for key, (color, x_min, x_max, y_min, y_max, z_min, z_max) in self.plot_shapes_values_dictionary.items():
+            adjusted_z_min = z_min + offset
+            adjusted_z_max = z_max - offset
+            self.plot_shapes_values_dictionary[key] = (color, x_min, x_max, y_min, y_max, adjusted_z_min, adjusted_z_max)
