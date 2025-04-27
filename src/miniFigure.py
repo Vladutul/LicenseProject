@@ -19,24 +19,15 @@ class createMiniFigure:
         id = len(self.plot_shapes_values_dictionary)
         key = f"id_{id}"
 
-        x_center, y_center, z_min, height, radius = self.generate_unused_real_values_roundHole()
-        color = (1, 0, 0, 0.8)
-
-        self.plot_shapes_values_dictionary[key] = {
-            'shape': 'drillPlate',
-            'real_values': (x_center, y_center, z_min, height, radius, color),
-            'top_mask': None,
-            'bottom_mask': None,
-            'visibleState': False
-        }
-
-        self.plot_miniFigure_roundHole(x_center, y_center, z_min, height, radius, color)
+        values = self.generate_unused_real_values_parallelipiped()
+        self.plot_shapes_values_dictionary[key] = self.create_shape_real_values(key, values, 'drillPlate')
+        self.plot_miniFigure_parallelipiped(*values[:-1], color=values[-1])
         self.input_boxes[key] = {}
 
         mini_widget, mini_grid_layout = self.create_mini_widget_layout()
 
-        labels = ['x_min', 'x_max', 'y_min', 'y_max', 'z_min', 'z_max']
-        default_values = [x_center, y_center, z_min, height, radius]
+        labels = ['x1', 'x2', 'y1', 'y2', 'z1', 'z2']
+        default_values = [*values[:-1]]
 
         show_button = self.classUIinitialization.create_button(
             lambda k=key: self.change_visibleState(k), mini_grid_layout, "Show", 0, 0)
@@ -97,7 +88,7 @@ class createMiniFigure:
         mini_widget, mini_grid_layout = self.create_mini_widget_layout()
 
         labels = ['x1', 'x2', 'y1', 'y2', 'z1', 'z2']
-        default_values = [values[:-1]]
+        default_values = [*values[:-1]]
 
         show_button = self.classUIinitialization.create_button(
             lambda k=key: self.change_visibleState(k), mini_grid_layout, "Show", 0, 0)
@@ -172,10 +163,11 @@ class createMiniFigure:
 
             # Redraw the plot with the updated values
             self.plot_miniFigure_parallelipiped(x1, x2, y1, y2, z1, z2, color)
+            self.shapeManipulationRefference.update_plot()
 
         except ValueError:
             print("Invalid input: please enter valid numbers.")
-
+            
     def create_miniFigure_roundHole(self):
         id = len(self.plot_shapes_values_dictionary)
         key = f"id_{id}"
@@ -263,6 +255,7 @@ class createMiniFigure:
             self.plot_shapes_values_dictionary[key]['real_values'] = (x_center, y_center, z_min, height, radius, color)
             self.clear_plot()
             self.plot_miniFigure_roundHole(x_center, y_center, z_min, height, radius, color)
+            self.shapeManipulationRefference.update_plot()
 
         except ValueError:
             print("Invalid input: please enter valid numbers.")
