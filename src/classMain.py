@@ -1,5 +1,5 @@
 import qtpy
-from PyQt5.QtWidgets import QMainWindow, QWidget, QComboBox, QPushButton, QLineEdit, QDockWidget, QGridLayout, QLayout, QHBoxLayout, QVBoxLayout
+from PyQt5.QtWidgets import QMainWindow, QWidget, QComboBox, QPushButton, QSizePolicy, QLineEdit, QDockWidget, QGridLayout, QLayout, QHBoxLayout, QVBoxLayout
 from PyQt5.QtCore import Qt
 from serialConnection import serialConnectionClass
 from shapeManipulation import shapeManipulationClass
@@ -11,11 +11,11 @@ class classUIinitialization(QMainWindow):
 
         self.setGeometry(100, 100, 1600, 900)        
 
-        self.centralWidget = QWidget()        
-        self.shapeManiputationDock = shapeManipulationClass(self, self.centralWidget)
-        self.serialConnectionDock = serialConnectionClass(self, self.centralWidget)
-        self.connectionWindowDock = connectionWindowClass(self, self.centralWidget)
+        self.serialConnectionDock = serialConnectionClass(self, None)
+        self.shapeManiputationDock = shapeManipulationClass(self, None)
+        self.connectionWindowDock = connectionWindowClass(self, None)
 
+        # Dock widgets configuration
         self.dock_widgets = {
             "SerialConnection": {
                 "widget": self.serialConnectionDock.serialConnectionFrontend,
@@ -35,7 +35,7 @@ class classUIinitialization(QMainWindow):
                 "dock": None,
                 "action": None
             }
-        }     
+        }
 
         self.addDockWidgets()
 
@@ -45,6 +45,13 @@ class classUIinitialization(QMainWindow):
             self.addDockWidget(info["area"], dock)
             info["dock"] = dock  # Store reference to dock widget
 
+        # Adjust dock sizes
+        self.resizeDocks(
+            [self.dock_widgets["ShapeManipulation"]["dock"], self.dock_widgets["SerialConnection"]["dock"]],
+            [2, 1],  # Stretch factors
+            Qt.Horizontal
+        )
+
     def createDockWidget(self, dockName, widget):
         dock = QDockWidget(dockName, self)
         dock.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.TopDockWidgetArea | Qt.BottomDockWidgetArea)
@@ -52,7 +59,7 @@ class classUIinitialization(QMainWindow):
         dock.setFeatures(QDockWidget.DockWidgetClosable | QDockWidget.DockWidgetMovable | QDockWidget.DockWidgetFloatable)
         dock.visibilityChanged.connect(lambda visible, t=dockName: self.onDockVisibilityChanged(t, visible))
         self.setDockOptions(QMainWindow.AllowNestedDocks | QMainWindow.AllowTabbedDocks | QMainWindow.AnimatedDocks)
-        
+
         return dock
 
     def onDockVisibilityChanged(self, title, visible):
@@ -96,8 +103,6 @@ class classUIinitialization(QMainWindow):
                 parent_layout.addWidget(child)
             else:
                 print("Error: child is neither QLayout nor QWidget")
-
-
 
     def create_text_box(self, layout):
         textbox = QLineEdit()

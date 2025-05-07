@@ -126,12 +126,12 @@ class PlotManager:
         for key, val in self.plot_shapes_values_dictionary.items():
             shape_type = val.get('shape')
             real_values = val.get('real_values')
-            top_mask = val.get('top_mask')
-            bottom_mask = val.get('bottom_mask')
 
             if shape_type == 'parallelipiped':
                 x_min, x_max, y_min, y_max, z_min, z_max, color = real_values
                 self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color=(0.5, 0.5, 1, 0.5))
+                top_mask = val.get('top_mask')
+                bottom_mask = val.get('bottom_mask')
 
                 if top_mask:
                     x_min, x_max, y_min, y_max, z_min, z_max = top_mask
@@ -140,10 +140,12 @@ class PlotManager:
                 if bottom_mask:
                     x_min, x_max, y_min, y_max, z_min, z_max = bottom_mask
                     plot_mask_parallelipiped(x_min, x_max, y_min, y_max, z_min, z_max, color=(1, 0, 0, 0.5))
-                
+
             elif shape_type == 'roundHole':
                 x_center, y_center, z_min, height, radius, color = real_values
                 self.plot_cylinder(x_center, y_center, z_min, height, radius, color=color)
+                top_mask = val.get('top_mask')
+                bottom_mask = val.get('bottom_mask')
 
                 if top_mask:
                     x_center, y_center, z_min, height, radius, color = top_mask
@@ -152,18 +154,15 @@ class PlotManager:
                 if bottom_mask:
                     x_center, y_center, z_min, height, radius, color = bottom_mask
                     plot_mask_cylinder(x_center, y_center, z_min, height, radius, color=color)
-
+            
+            elif shape_type == 'drillPlate':
+                x_min, x_max, y_min, y_max, z_min, z_max, color = real_values
+                self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color=(0.5, 0.5, 1, 0.5))
 
     def clear_plot(self):
         for item in self.items:
             self.view.removeItem(item)
         self.items.clear()
-
-
-
-
-
-
 
     def init_plot(self):
         self.plot_manager = PlotManager(self.plot_container_widget)

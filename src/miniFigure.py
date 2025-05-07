@@ -4,23 +4,24 @@ import pyqtgraph.opengl as gl
 
 
 class createMiniFigure:
-    def __init__(self, plot_shapes_values_dictionary, input_boxes, parent_layout, classUIinitialization, shapeManipulationRefference):
+    def __init__(self, plot_shapes_values_dictionary, input_boxes, parent_layout, classUIinitializationRefference, shapeManipulationRefference):
         self.plot_shapes_values_dictionary = plot_shapes_values_dictionary
         self.input_boxes = input_boxes
         self.parent_layout = parent_layout
-        self.classUIinitialization = classUIinitialization
+        self.classUIinitializationRefference = classUIinitializationRefference
         self.shapeManipulationRefference = shapeManipulationRefference
 
         self.view_miniFigure = gl.GLViewWidget()
         self.view_miniFigure.setCameraPosition(distance=20)
         self.items_miniFigure = []
 
-    def create_miniFigure_drillPlate(self):
+    def create_miniFigure_parallelipiped(self):
+
         id = len(self.plot_shapes_values_dictionary)
         key = f"id_{id}"
 
         values = self.generate_unused_real_values_parallelipiped()
-        self.plot_shapes_values_dictionary[key] = self.create_shape_real_values(key, values, 'drillPlate')
+        self.plot_shapes_values_dictionary[key] = self.create_shape_real_values(key, values, 'parallelipiped')
         self.plot_miniFigure_parallelipiped(*values[:-1], color=values[-1])
         self.input_boxes[key] = {}
 
@@ -29,9 +30,41 @@ class createMiniFigure:
         labels = ['x1', 'x2', 'y1', 'y2', 'z1', 'z2']
         default_values = [*values[:-1]]
 
-        show_button = self.classUIinitialization.create_button(
+        show_button = self.classUIinitializationRefference.create_button(
             lambda k=key: self.change_visibleState(k), mini_grid_layout, "Show", 0, 0)
-        remove_button = self.classUIinitialization.create_button(
+        remove_button = self.classUIinitializationRefference.create_button(
+            lambda k=key, w=mini_widget: self.remove_shape(k, w), mini_grid_layout, "Remove", 1, 0)
+
+        show_button.setFixedSize(50, 25)
+        remove_button.setFixedSize(50, 25)
+
+        for i, (label, value) in enumerate(zip(labels, default_values), start=2):
+            line_edit = QLineEdit(str(value))
+            line_edit.setFixedWidth(50)
+            self.input_boxes[key][label] = line_edit
+            mini_grid_layout.addWidget(line_edit, i, 0)
+            line_edit.editingFinished.connect(lambda l=label, k=key: self.edit_shapeValues_parallelipiped(k))
+
+        mini_grid_layout.addWidget(self.view_miniFigure, 0, 1, 8, 1)
+        self.parent_layout.addWidget(mini_widget)
+        
+    def create_miniFigure_roundHole(self):
+        id = len(self.plot_shapes_values_dictionary)
+        key = f"id_{id}"
+
+        values = self.generate_unused_real_values_roundHole()
+        self.plot_shapes_values_dictionary[key] = self.create_shape_real_values(key, values, 'roundHole')
+        self.plot_miniFigure_roundHole(*values[:-1], color=values[-1])
+        self.input_boxes[key] = {}
+
+        mini_widget, mini_grid_layout = self.create_mini_widget_layout()
+
+        labels = ['x_center', 'y_center', 'z_min', 'height', 'radius']
+        default_values = [*values[:-1]]
+
+        show_button = self.classUIinitializationRefference.create_button(
+            lambda k=key: self.change_visibleState(k), mini_grid_layout, "Edit", 0, 0)
+        remove_button = self.classUIinitializationRefference.create_button(
             lambda k=key, w=mini_widget: self.remove_shape(k, w), mini_grid_layout, "Remove", 1, 0)
 
         show_button.setFixedSize(50, 25)
@@ -46,16 +79,48 @@ class createMiniFigure:
 
         mini_grid_layout.addWidget(self.view_miniFigure, 0, 1, 7, 1)
         self.parent_layout.addWidget(mini_widget)
+        
+    def create_miniFigure_drillPlate(self):
+        id = len(self.plot_shapes_values_dictionary)
+        key = f"id_{id}"
 
+        values = self.generate_unused_real_values_drillPlate()
+        self.plot_shapes_values_dictionary[key] = self.create_shape_real_values(key, values, 'drillPlate')
+        self.plot_miniFigure_parallelipiped(*values[:-1], color=values[-1])
+        self.input_boxes[key] = {}
+
+        mini_widget, mini_grid_layout = self.create_mini_widget_layout()
+
+        labels = ['x1', 'x2', 'y1', 'y2', 'z1', 'z2']
+        default_values = [*values[:-1]]
+
+        show_button = self.classUIinitializationRefference.create_button(
+            lambda k=key: self.change_visibleState(k), mini_grid_layout, "Show", 0, 0)
+        remove_button = self.classUIinitializationRefference.create_button(
+            lambda k=key, w=mini_widget: self.remove_shape(k, w), mini_grid_layout, "Remove", 1, 0)
+
+        show_button.setFixedSize(50, 25)
+        remove_button.setFixedSize(50, 25)
+
+        for i, (label, value) in enumerate(zip(labels, default_values), start=2):
+            line_edit = QLineEdit(str(value))
+            line_edit.setFixedWidth(50)
+            self.input_boxes[key][label] = line_edit
+            mini_grid_layout.addWidget(line_edit, i, 0)
+            line_edit.editingFinished.connect(lambda l=label, k=key: self.edit_shapeValues_roundHole(k))
+
+        mini_grid_layout.addWidget(self.view_miniFigure, 0, 1, 8, 1)
+        self.parent_layout.addWidget(mini_widget)
+    
     def create_mini_widget_layout(self):
         mini_grid_layout = QGridLayout()
         mini_widget = QWidget()
         mini_widget.setLayout(mini_grid_layout)
         mini_widget.setFixedSize(300, 250)
         return mini_widget, mini_grid_layout
-
+    
     def create_shape_real_values(self, key, values, shape_type):
-        if shape_type == 'parallelipiped' or shape_type == 'drillPlate':
+        if shape_type == 'parallelipiped':
             x_min, x_max, y_min, y_max, z_min, z_max, color = values
             self.plot_shapes_values_dictionary[key] = {
                 'shape': shape_type,
@@ -73,40 +138,32 @@ class createMiniFigure:
                 'bottom_mask': None,
                 'visibleState': False
             }
+        elif shape_type == 'drillPlate':
+            x_min, x_max, y_min, y_max, z_min, z_max, color = values
+            self.plot_shapes_values_dictionary[key] = {
+                'shape': shape_type,
+                'real_values': (x_min, x_max, y_min, y_max, z_min, z_max, color),
+                'visibleState': False
+            }
         
-        return self.plot_shapes_values_dictionary[key]
+        return self.plot_shapes_values_dictionary[key] 
+    
+    def create_masks_for_real_values(self, key):
+        if self.plot_shapes_values_dictionary[key]['shape'] == 'parallelipiped':
+            pass
+        elif self.plot_shapes_values_dictionary[key]['shape'] == 'roundHole':
+            pass
+        elif self.plot_shapes_values_dictionary[key]['shape'] == 'drillPlate':
+            pass
 
-    def create_miniFigure_parallelipiped(self):
-        id = len(self.plot_shapes_values_dictionary)
-        key = f"id_{id}"
+        real_values = self.plot_shapes_values_dictionary[key]['real_values']
+        x_min, x_max, y_min, y_max, z_min, z_max, color = real_values
 
-        values = self.generate_unused_real_values_parallelipiped()
-        self.plot_shapes_values_dictionary[key] = self.create_shape_real_values(key, values, 'parallelipiped')
-        self.plot_miniFigure_parallelipiped(*values[:-1], color=values[-1])
-        self.input_boxes[key] = {}
+        top_mask = (x_min, x_max, y_min, y_max, z_min - 0.01, z_max + 0.01, color)
+        bottom_mask = (x_min, x_max, y_min, y_max, z_min + 0.01, z_max - 0.01, color)
 
-        mini_widget, mini_grid_layout = self.create_mini_widget_layout()
-
-        labels = ['x1', 'x2', 'y1', 'y2', 'z1', 'z2']
-        default_values = [*values[:-1]]
-
-        show_button = self.classUIinitialization.create_button(
-            lambda k=key: self.change_visibleState(k), mini_grid_layout, "Show", 0, 0)
-        remove_button = self.classUIinitialization.create_button(
-            lambda k=key, w=mini_widget: self.remove_shape(k, w), mini_grid_layout, "Remove", 1, 0)
-
-        show_button.setFixedSize(50, 25)
-        remove_button.setFixedSize(50, 25)
-
-        for i, (label, value) in enumerate(zip(labels, default_values), start=2):
-            line_edit = QLineEdit(str(value))
-            line_edit.setFixedWidth(50)
-            self.input_boxes[key][label] = line_edit
-            mini_grid_layout.addWidget(line_edit, i, 0)
-            line_edit.editingFinished.connect(lambda l=label, k=key: self.edit_shapeValues_parallelipiped(k))
-
-        mini_grid_layout.addWidget(self.view_miniFigure, 0, 1, 8, 1)
-        self.parent_layout.addWidget(mini_widget)
+        self.plot_shapes_values_dictionary[key]['top_mask'] = top_mask
+        self.plot_shapes_values_dictionary[key]['bottom_mask'] = bottom_mask
 
     def plot_miniFigure_parallelipiped(self, x_min, x_max, y_min, y_max, z_min, z_max, color=(0.5, 0.5, 1, 0.5)):
         verts = np.array([
@@ -134,72 +191,7 @@ class createMiniFigure:
                              smooth=False, drawEdges=True, edgeColor=(0, 0, 0, 1))
         self.view_miniFigure.addItem(mesh)
         self.items_miniFigure.append(mesh)
-
-    def edit_shapeValues_parallelipiped(self, key):
-        try:
-            # Get the input boxes for the specified key
-            if key not in self.input_boxes:
-                print(f"No input boxes found for key: {key}")
-                return
-
-            boxes = self.input_boxes[key]
-
-            # Read the updated values from the input boxes
-            x1 = float(boxes['x1'].text())
-            x2 = float(boxes['x2'].text())
-            y1 = float(boxes['y1'].text())
-            y2 = float(boxes['y2'].text())
-            z1 = float(boxes['z1'].text())
-            z2 = float(boxes['z2'].text())
-
-            # Retain the original color from the dictionary
-            color = self.plot_shapes_values_dictionary[key]['real_values'][-1]
-
-            # Update the dictionary with the new values
-            self.plot_shapes_values_dictionary[key]['real_values'] = (x1, x2, y1, y2, z1, z2, color)
-
-            # Clean the plot
-            self.clear_plot()
-
-            # Redraw the plot with the updated values
-            self.plot_miniFigure_parallelipiped(x1, x2, y1, y2, z1, z2, color)
-            self.shapeManipulationRefference.update_plot()
-
-        except ValueError:
-            print("Invalid input: please enter valid numbers.")
-            
-    def create_miniFigure_roundHole(self):
-        id = len(self.plot_shapes_values_dictionary)
-        key = f"id_{id}"
-
-        values = self.generate_unused_real_values_roundHole()
-        self.plot_shapes_values_dictionary[key] = self.create_shape_real_values(key, values, 'roundHole')
-        self.plot_miniFigure_roundHole(*values[:-1], color=values[-1])
-        self.input_boxes[key] = {}
-
-        mini_widget, mini_grid_layout = self.create_mini_widget_layout()
-
-        labels = ['x_center', 'y_center', 'z_min', 'height', 'radius']
-        default_values = [*values[:-1]]
-
-        show_button = self.classUIinitialization.create_button(
-            lambda k=key: self.change_visibleState(k), mini_grid_layout, "Edit", 0, 0)
-        remove_button = self.classUIinitialization.create_button(
-            lambda k=key, w=mini_widget: self.remove_shape(k, w), mini_grid_layout, "Remove", 1, 0)
-
-        show_button.setFixedSize(50, 25)
-        remove_button.setFixedSize(50, 25)
-
-        for i, (label, value) in enumerate(zip(labels, default_values), start=2):
-            line_edit = QLineEdit(str(value))
-            line_edit.setFixedWidth(50)
-            self.input_boxes[key][label] = line_edit
-            mini_grid_layout.addWidget(line_edit, i, 0)
-            line_edit.editingFinished.connect(lambda l=label, k=key: self.edit_shapeValues_roundHole(k))
-
-        mini_grid_layout.addWidget(self.view_miniFigure, 0, 1, 7, 1)
-        self.parent_layout.addWidget(mini_widget)
-
+    
     def plot_miniFigure_roundHole(self, x_center, y_center, z_min, height, radius, color):
         resolution = 100
         offset = 0.2
@@ -240,6 +232,39 @@ class createMiniFigure:
         self.view_miniFigure.addItem(mesh)
         self.items_miniFigure.append(mesh)
 
+    def edit_shapeValues_parallelipiped(self, key):
+        try:
+            # Get the input boxes for the specified key
+            if key not in self.input_boxes:
+                print(f"No input boxes found for key: {key}")
+                return
+
+            boxes = self.input_boxes[key]
+
+            # Read the updated values from the input boxes
+            x1 = float(boxes['x1'].text())
+            x2 = float(boxes['x2'].text())
+            y1 = float(boxes['y1'].text())
+            y2 = float(boxes['y2'].text())
+            z1 = float(boxes['z1'].text())
+            z2 = float(boxes['z2'].text())
+
+            # Retain the original color from the dictionary
+            color = self.plot_shapes_values_dictionary[key]['real_values'][-1]
+
+            # Update the dictionary with the new values
+            self.plot_shapes_values_dictionary[key]['real_values'] = (x1, x2, y1, y2, z1, z2, color)
+
+            # Clean the plot
+            self.clear_plot()
+
+            # Redraw the plot with the updated values
+            self.plot_miniFigure_parallelipiped(x1, x2, y1, y2, z1, z2, color)
+            self.shapeManipulationRefference.update_plot()
+
+        except ValueError:
+            print("Invalid input: please enter valid numbers.")
+
     def edit_shapeValues_roundHole(self, key):
         try:
             boxes = self.input_boxes[key]
@@ -259,35 +284,6 @@ class createMiniFigure:
 
         except ValueError:
             print("Invalid input: please enter valid numbers.")
-
-    def remove_shape(self, key, widget):
-        if key in self.plot_shapes_values_dictionary:
-            del self.plot_shapes_values_dictionary[key]
-        if key in self.input_boxes:
-            del self.input_boxes[key]
-        widget.setParent(None)
-
-    def create_masks_for_real_values(self, key):
-        if self.plot_shapes_values_dictionary[key]['shape'] == 'parallelipiped':
-            pass
-        elif self.plot_shapes_values_dictionary[key]['shape'] == 'roundHole':
-            pass
-        elif self.plot_shapes_values_dictionary[key]['shape'] == 'drillPlate':
-            pass
-
-        real_values = self.plot_shapes_values_dictionary[key]['real_values']
-        x_min, x_max, y_min, y_max, z_min, z_max, color = real_values
-
-        top_mask = (x_min, x_max, y_min, y_max, z_min - 0.01, z_max + 0.01, color)
-        bottom_mask = (x_min, x_max, y_min, y_max, z_min + 0.01, z_max - 0.01, color)
-
-        self.plot_shapes_values_dictionary[key]['top_mask'] = top_mask
-        self.plot_shapes_values_dictionary[key]['bottom_mask'] = bottom_mask
-
-    def clear_plot(self):
-        for item in self.items_miniFigure:
-            self.view_miniFigure.removeItem(item)
-        self.items_miniFigure.clear()
 
     def generate_unused_real_values_parallelipiped(self):
         color = (0, 3, 1, 0.4)
@@ -327,6 +323,37 @@ class createMiniFigure:
         radius = 2
 
         return x_center, y_center, z_min, height, radius, color
+    
+    def generate_unused_real_values_drillPlate(self):
+        color = (0.5, 0.5, 0.5, 0.4)
+        existing_ranges = []
+        for key, data in self.plot_shapes_values_dictionary.items():
+            real_values = data.get('real_values', [])
+            if len(real_values) >= 2:
+                x_min, x_max = real_values[:2]
+                existing_ranges.append((x_min, x_max))
+
+        x_min, x_max = -33, -3
+        while any(x_min <= existing_x_max and x_max >= existing_x_min for existing_x_min, existing_x_max in existing_ranges):
+            x_min -= 6
+            x_max -= 6
+
+        y_min, y_max = 23, 53
+        z_min, z_max = 0, 2.5
+
+        return x_min, x_max, y_min, y_max, z_min, z_max, color    
+    
+    def remove_shape(self, key, widget):
+        if key in self.plot_shapes_values_dictionary:
+            del self.plot_shapes_values_dictionary[key]
+        if key in self.input_boxes:
+            del self.input_boxes[key]
+        widget.setParent(None)
+
+    def clear_plot(self):
+        for item in self.items_miniFigure:
+            self.view_miniFigure.removeItem(item)
+        self.items_miniFigure.clear()
 
     def change_visibleState(self, key):
         if key in self.plot_shapes_values_dictionary:
