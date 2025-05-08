@@ -12,7 +12,7 @@ class shapeManipulationClass(QWidget):
         self.mini_instances = []
         self.init_UI()
         self.plotManager = PlotManager(self.plot_container_widget, self.plot_shapes_values_dictionary)
-
+    
     def init_UI(self):
         self.main_grid_layout = QGridLayout()
         self.buttons_horizontal_layout_first_row = QHBoxLayout()

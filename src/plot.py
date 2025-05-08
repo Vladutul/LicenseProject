@@ -82,34 +82,6 @@ class PlotManager:
         self.view.addItem(mesh)
         self.items.append(mesh)
 
-    """    def update_plot(self):
-        # Clear the plot before updating
-        self.clear_plot()
-
-        for key, val in self.plot_shapes_values_dictionary.items():
-            shape_type = val.get('shape')
-            real_values = val.get('real_values')
-            top_mask = val.get('top_mask')
-            bottom_mask = val.get('bottom_mask')
-
-            # Plot the main shape
-            if shape_type == 'parallelipiped':
-                x_min, x_max, y_min, y_max, z_min, z_max, color = real_values
-                self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color=color)
-            elif shape_type == 'roundHole':
-                x_center, y_center, z_min, height, radius, color = real_values
-                self.plot_cylinder(x_center, y_center, z_min, height, radius, color=color)
-
-            # Plot the top mask if it exists
-            if top_mask:
-                x_min, x_max, y_min, y_max, z_min, z_max = top_mask
-                self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color=(0, 1, 0, 0.5))  # Green for top mask
-
-            # Plot the bottom mask if it exists
-            if bottom_mask:
-                x_min, x_max, y_min, y_max, z_min, z_max = bottom_mask
-                self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color=(1, 0, 0, 0.5))  # Red for bottom mask"""
-
     def check_if_in_drillplate(self, x, y, z):
         x_min, x_max, y_min, y_max, z_min, z_max = self.plot_shapes_values_dictionary['drillplate']['real_values']
         return x_min <= x <= x_max and y_min <= y <= y_max and z_min <= z <= z_max

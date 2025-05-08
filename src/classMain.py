@@ -1,21 +1,26 @@
-import qtpy
-from PyQt5.QtWidgets import QMainWindow, QWidget, QComboBox, QPushButton, QSizePolicy, QLineEdit, QDockWidget, QGridLayout, QLayout, QHBoxLayout, QVBoxLayout
+from PyQt5.QtWidgets import QMainWindow, QWidget, QComboBox, QPushButton, QAction, QLineEdit, QDockWidget, QGridLayout, QLayout, QHBoxLayout, QVBoxLayout, QMessageBox
 from PyQt5.QtCore import Qt
 from serialConnection import serialConnectionClass
 from shapeManipulation import shapeManipulationClass
 from connectionWindow import connectionWindowClass
+from gCodeGeneration import gCodeGenerationClass
+
 
 class classUIinitialization(QMainWindow):
     def __init__(self):
         super().__init__()
-
         self.setGeometry(100, 100, 1600, 900)        
 
         self.serialConnectionDock = serialConnectionClass(self, None)
         self.shapeManiputationDock = shapeManipulationClass(self, None)
         self.connectionWindowDock = connectionWindowClass(self, None)
+        self.gCodeGeneration = gCodeGenerationClass(self, None)
 
-        # Dock widgets configuration
+        self.dock_generation()
+        self.addDockWidgets()
+        self.createMenuBar()
+
+    def dock_generation(self):
         self.dock_widgets = {
             "SerialConnection": {
                 "widget": self.serialConnectionDock.serialConnectionFrontend,
@@ -37,20 +42,11 @@ class classUIinitialization(QMainWindow):
             }
         }
 
-        self.addDockWidgets()
-
     def addDockWidgets(self):
         for dockName, info in self.dock_widgets.items():
             dock = self.createDockWidget(dockName, info["widget"])
             self.addDockWidget(info["area"], dock)
             info["dock"] = dock  # Store reference to dock widget
-
-        # Adjust dock sizes
-        self.resizeDocks(
-            [self.dock_widgets["ShapeManipulation"]["dock"], self.dock_widgets["SerialConnection"]["dock"]],
-            [2, 1],  # Stretch factors
-            Qt.Horizontal
-        )
 
     def createDockWidget(self, dockName, widget):
         dock = QDockWidget(dockName, self)
@@ -70,12 +66,70 @@ class classUIinitialization(QMainWindow):
             if action:
                 action.setChecked(visible)
 
-    def add_dock_widgets(self):
-        pass
+    def createMenuBar(self):
+        menu_bar = self.menuBar()
 
-    def create_menu_bar(self):
-        pass
+        file_menu = menu_bar.addMenu('File')
+        view_menu = menu_bar.addMenu('View')
+        #help_menu = menu_bar.addMenu('Help')
+
+        #file_menu
+        open_saved_project = QAction('Open Project', self)
+        open_saved_project.setStatusTip('Open a saved project')
+        #open_action.triggered.connect(self.dataset_treeview.open_file)
+
+        generate_gCode = QAction('Generate GCode', self)
+        generate_gCode.setStatusTip('Generate GCode')
+        #open_bar_view_action.triggered.connect(self.dataset_treeview.open_file_adc2)
+
+        exit_action = QAction('Exit', self)
+        exit_action.setStatusTip('Exit the application')
+        #exit_action.triggered.connect(self.close)
+
+        #view_menu
+        for title, info in self.dock_widgets.items():
+            action = QAction(title, self, checkable=True)
+            action.setChecked(True)  # Initially checked
+            action.triggered.connect(lambda checked, t=title: self.toggleDockWidget(t, checked))
+            view_menu.addAction(action)
+            self.dock_widgets[title]["action"] = action
+
+        file_menu.addAction(open_saved_project)
+        file_menu.addAction(generate_gCode)
+        file_menu.addSeparator()
+        file_menu.addAction(exit_action)
+
+        #help_menu
+        #test_button_action = QAction('Test_Button', self)
+        #test_button_action.triggered.connect()
+        #help_menu.addAction(test_button_action)
     
+    def toggleDockWidget(self, title, checked):
+        dock = self.dock_widgets[title]["dock"]
+        if dock:
+            if checked:
+                dock.show()
+            else:
+                dock.hide()
+
+    def onDockVisibilityChanged(self, title, visible):
+        dock_info = self.dock_widgets.get(title)
+        if dock_info:
+            action = dock_info["action"]
+            if action:
+                action.setChecked(visible)
+
+    def closeEvent(self, event):
+        reply = QMessageBox.question(self, 'Exit Confirmation', 
+                                     "Are you sure you want to quit?", 
+                                     QMessageBox.Yes | QMessageBox.No, 
+                                     QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            print("Application is closing.")
+            event.accept()
+        else:
+            event.ignore()
+
     def run(self):
         self.show()
 
