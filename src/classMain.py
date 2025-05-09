@@ -76,11 +76,15 @@ class classUIinitialization(QMainWindow):
         #file_menu
         open_saved_project = QAction('Open Project', self)
         open_saved_project.setStatusTip('Open a saved project')
-        #open_action.triggered.connect(self.dataset_treeview.open_file)
+        #open_saved_project.triggered.connect(self.dataset_treeview.open_file)
 
         generate_gCode = QAction('Generate GCode', self)
         generate_gCode.setStatusTip('Generate GCode')
-        #open_bar_view_action.triggered.connect(self.dataset_treeview.open_file_adc2)
+        generate_gCode.triggered.connect(self.gCodeGeneration.create_gCode_file)
+
+        send_gCode = QAction('Send GCode', self)
+        send_gCode.setStatusTip('Send GCode to Arduino')
+        send_gCode.triggered.connect(self.serialConnectionDock.serialConnectionBackend.send_gcode_file)
 
         exit_action = QAction('Exit', self)
         exit_action.setStatusTip('Exit the application')
@@ -96,6 +100,7 @@ class classUIinitialization(QMainWindow):
 
         file_menu.addAction(open_saved_project)
         file_menu.addAction(generate_gCode)
+        file_menu.addAction(send_gCode)
         file_menu.addSeparator()
         file_menu.addAction(exit_action)
 

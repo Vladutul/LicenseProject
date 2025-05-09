@@ -1,5 +1,7 @@
 import serial
 import serial.tools.list_ports
+import time
+import os
 
 
 class serialConnectionBackend():
@@ -8,18 +10,51 @@ class serialConnectionBackend():
         self.parent = parent
         self.ser = None
         self.reader = None
+        self.filepath = "C:/Users/Vladutul/Documents/FisierTestgCodeLicenta/output.gcode"
 
-    def find_ports(self):
-        ports = serial.tools.list_ports.comports()
-        return [port.device for port in ports]
+
+    def send_gcode_file(self, wait_for='ok', delay=0.1):
+        if not os.path.isfile(self.filepath):
+            print(f"File not found: {self.filepath}")
+            return
+
+        try:
+            with open(self.filepath, 'r', encoding='utf-8', errors='replace') as file:
+                for line_number, line in enumerate(file, 1):
+                    # Strip comments and whitespace
+                    line = line.split(';', 1)[0].strip()
+                    if not line:
+                        continue
+                    try:
+                        # Send the line as a string
+                        response = self.send_data(str(line))
+                        print(f"Line {line_number}: Sent: {line} | Received: {response}")
+
+                        while not (isinstance(response, str) and wait_for in response.lower()):
+                            time.sleep(delay)
+                            response = self.ser.readline().decode(errors='ignore').strip()
+                            if response:
+                                print(f"Line {line_number}: Waiting... Received: {response}")
+
+                        time.sleep(delay)
+                    except Exception as e:
+                        print(f"Error sending line {line_number}: {e}")
+                        break
+        except Exception as e:
+            print(f"Error opening or reading file: {e}")
 
     def send_data(self, data):
+        print(data)
         if self.ser.is_open and data is not None:
             self.ser.write((data.strip() + '\n').encode('utf-8'))
             self.ser.flush()
             response = self.ser.readline().decode().strip()
             return response
-
+        
+    def find_ports(self):
+        ports = serial.tools.list_ports.comports()
+        return [port.device for port in ports]
+    
     def read_data(self):
         if self.ser.in_waiting > 0:
             data = self.ser.readline().decode('utf-8').rstrip()
