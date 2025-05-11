@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QComboBox, QPushButton, QAction, QLineEdit, QDockWidget, QGridLayout, QLayout, QHBoxLayout, QVBoxLayout, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QWidget, QComboBox, QFileDialog, QPushButton, QAction, QLineEdit, QDockWidget, QGridLayout, QLayout, QHBoxLayout, QVBoxLayout, QMessageBox
 from PyQt5.QtCore import Qt
 from serialConnection import serialConnectionClass
 from shapeManipulation import shapeManipulationClass
@@ -11,14 +11,44 @@ class classUIinitialization(QMainWindow):
         super().__init__()
         self.setGeometry(100, 100, 1600, 900)        
 
+        self.filepath = None
         self.serialConnectionDock = serialConnectionClass(self, None)
         self.shapeManiputationDock = shapeManipulationClass(self, None)
         self.connectionWindowDock = connectionWindowClass(self, None)
-        self.gCodeGeneration = gCodeGenerationClass(self, None)
+        self.gCodeGeneration = gCodeGenerationClass(self.filepath , self.shapeManiputationDock.plot_shapes_values_dictionary)
 
         self.dock_generation()
         self.addDockWidgets()
         self.createMenuBar()
+
+    def gCode_generation_wrapper_new_filepath(self):
+        # Open a file dialog to select where to save the file
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        filepath, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save GCode File",
+            "",
+            "GCode Files (*.gcode);;All Files (*)",
+            options=options
+        )
+
+        if filepath:  # If the user selects a file
+            self.filepath = filepath
+            self.gCodeGeneration.gcode_file_path = self.filepath
+            self.gCodeGeneration.create_gCode_file()
+            print(f"GCode file saved to: {self.filepath}")
+        else:
+            print("File save operation canceled.")
+    
+    def gCode_generation_wrapper_existing_file(self):
+        if self.filepath:
+            self.gCodeGeneration.create_gCode_file()
+        else:
+            self.gCode_generation_wrapper_new_filepath()
+
+    def GCodeSendingWrapper(self):
+        self.serialConnectionDock.serialConnectionBackend.send_gcode_file()
 
     def dock_generation(self):
         self.dock_widgets = {
@@ -78,13 +108,17 @@ class classUIinitialization(QMainWindow):
         open_saved_project.setStatusTip('Open a saved project')
         #open_saved_project.triggered.connect(self.dataset_treeview.open_file)
 
-        generate_gCode = QAction('Generate GCode', self)
-        generate_gCode.setStatusTip('Generate GCode')
-        generate_gCode.triggered.connect(self.gCodeGeneration.create_gCode_file)
+        generate_gCode_existing_filepath = QAction('Generate GCode', self)
+        generate_gCode_existing_filepath.setStatusTip('Generate GCode')
+        generate_gCode_existing_filepath.triggered.connect(self.gCode_generation_wrapper_existing_file)
+
+        generate_gCode_new_filepath = QAction('Generate GCode New File', self)
+        generate_gCode_new_filepath.setStatusTip('Generate GCode New Filepath')
+        generate_gCode_new_filepath.triggered.connect(self.gCode_generation_wrapper_new_filepath)
 
         send_gCode = QAction('Send GCode', self)
         send_gCode.setStatusTip('Send GCode to Arduino')
-        send_gCode.triggered.connect(self.serialConnectionDock.serialConnectionBackend.send_gcode_file)
+        send_gCode.triggered.connect(self.GCodeSendingWrapper)
 
         exit_action = QAction('Exit', self)
         exit_action.setStatusTip('Exit the application')
@@ -99,7 +133,8 @@ class classUIinitialization(QMainWindow):
             self.dock_widgets[title]["action"] = action
 
         file_menu.addAction(open_saved_project)
-        file_menu.addAction(generate_gCode)
+        file_menu.addAction(generate_gCode_existing_filepath)
+        file_menu.addAction(generate_gCode_new_filepath)
         file_menu.addAction(send_gCode)
         file_menu.addSeparator()
         file_menu.addAction(exit_action)

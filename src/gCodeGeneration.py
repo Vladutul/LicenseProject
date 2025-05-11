@@ -1,8 +1,8 @@
 
 
 class gCodeGenerationClass:
-    def __init__(self, gcode_file_path, real_values_dictionary):
-        self.real_values_dictionary = real_values_dictionary
+    def __init__(self, gcode_file_path, plot_shapes_values_dictionary):
+        self.plot_shapes_values_dictionary = plot_shapes_values_dictionary
 
         drill_head_diameter = 0.5
         drill_head_height = 0.5
@@ -12,6 +12,25 @@ class gCodeGenerationClass:
         self.gcode_lines = []
 
     def create_gCode_file(self):
+        for key, data in self.plot_shapes_values_dictionary.items():
+            gCode_text = None
+            
+            if data.get('shape') == 'paralelipiped':
+                real_values = data.get('real_values', [])
+                gCode_text = self.processed_drill_parallelepiped_data(*real_values[:-1])
+                
+            elif data.get('shape') == 'roundHole':
+                pass
+
+            elif data.get('shape') == 'drillPlate':
+                pass
+            
+            if gCode_text:
+                with open(self.gcode_file_path, 'w') as file:
+                    file.write(gCode_text)
+
+    
+    def backup_gcode(self):
         xmin = float(10)
         xmax = float(50)
         ymin = float(20)
@@ -25,7 +44,7 @@ class gCodeGenerationClass:
             file.write(gCode_text)
 
 
-    def generate_gCode(self, xmin, xmax, ymin, ymax, zmin, zmax, z_step=1.0, feed_xy=1000, feed_z=300):
+    def processed_drill_parallelepiped_data(self, xmin, xmax, ymin, ymax, zmin, zmax, z_step=1.0, feed_xy=1000, feed_z=300):
         gcode = []
         gcode.append("G21 ; Set units to mm")
         gcode.append("G90 ; Absolute positioning")
@@ -46,7 +65,6 @@ class gCodeGenerationClass:
         gcode.append("M2 ; End program")
         
         return "\n".join(gcode)
-
 
     def save_gcode(self):
         with open(self.gcode_file_path, 'w') as file:

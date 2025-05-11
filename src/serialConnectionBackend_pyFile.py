@@ -17,31 +17,20 @@ class serialConnectionBackend():
         if not os.path.isfile(self.filepath):
             print(f"File not found: {self.filepath}")
             return
-
-        try:
-            with open(self.filepath, 'r', encoding='utf-8', errors='replace') as file:
-                for line_number, line in enumerate(file, 1):
-                    # Strip comments and whitespace
-                    line = line.split(';', 1)[0].strip()
-                    if not line:
-                        continue
-                    try:
-                        # Send the line as a string
-                        response = self.send_data(str(line))
-                        print(f"Line {line_number}: Sent: {line} | Received: {response}")
-
-                        while not (isinstance(response, str) and wait_for in response.lower()):
-                            time.sleep(delay)
-                            response = self.ser.readline().decode(errors='ignore').strip()
-                            if response:
-                                print(f"Line {line_number}: Waiting... Received: {response}")
-
-                        time.sleep(delay)
-                    except Exception as e:
-                        print(f"Error sending line {line_number}: {e}")
-                        break
-        except Exception as e:
-            print(f"Error opening or reading file: {e}")
+    
+        with open(self.filepath, 'r', encoding='utf-8', errors='replace') as file:
+            for line_number, line in enumerate(file, 1):
+                # Strip comments and whitespace
+                line = line.split(';', 1)[0].strip()
+                if not line:
+                    continue
+    
+                # Send the line as a string
+                response = self.send_data(str(line))
+                print(f"Line {line_number}: Sent: {line} | Received: {response}")
+    
+                # Add a delay between commands
+                time.sleep(delay)
 
     def send_data(self, data):
         print(data)
