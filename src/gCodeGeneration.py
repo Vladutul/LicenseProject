@@ -1,7 +1,7 @@
 
 
 class gCodeGenerationClass:
-    def __init__(self, gcode_file_path, plot_shapes_values_dictionary):
+    def __init__(self, plot_shapes_values_dictionary):
         self.plot_shapes_values_dictionary = plot_shapes_values_dictionary
 
         drill_head_diameter = 0.5
@@ -14,11 +14,13 @@ class gCodeGenerationClass:
     def create_gCode_file(self):
         for key, data in self.plot_shapes_values_dictionary.items():
             gCode_text = None
-            
-            if data.get('shape') == 'paralelipiped':
+
+            if data.get('shape') == 'parallelipiped':
                 real_values = data.get('real_values', [])
-                gCode_text = self.processed_drill_parallelepiped_data(*real_values[:-1])
-                
+                if len(real_values) == 7:  # Ensure the tuple has 7 elements
+                    x_min, x_max, y_min, y_max, z_min, z_max, color = real_values
+                    gCode_text = self.processed_drill_parallelepiped_data(x_min, x_max, y_min, y_max, z_min, z_max)
+
             elif data.get('shape') == 'roundHole':
                 pass
 
@@ -26,8 +28,8 @@ class gCodeGenerationClass:
                 pass
             
             if gCode_text:
-                with open(self.gcode_file_path, 'w') as file:
-                    file.write(gCode_text)
+                with open(self.gcode_file_path, 'a+') as file:  # 'a+' creates the file if it doesn't exist
+                    file.write(gCode_text + '\n')  # Append the G-code text
 
     
     def backup_gcode(self):

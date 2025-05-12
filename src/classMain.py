@@ -15,7 +15,7 @@ class classUIinitialization(QMainWindow):
         self.serialConnectionDock = serialConnectionClass(self, None)
         self.shapeManiputationDock = shapeManipulationClass(self, None)
         self.connectionWindowDock = connectionWindowClass(self, None)
-        self.gCodeGeneration = gCodeGenerationClass(self.filepath , self.shapeManiputationDock.plot_shapes_values_dictionary)
+        self.gCodeGeneration = gCodeGenerationClass(self.shapeManiputationDock.plot_shapes_values_dictionary)
 
         self.dock_generation()
         self.addDockWidgets()
@@ -48,7 +48,22 @@ class classUIinitialization(QMainWindow):
             self.gCode_generation_wrapper_new_filepath()
 
     def GCodeSendingWrapper(self):
-        self.serialConnectionDock.serialConnectionBackend.send_gcode_file()
+        # Open a file dialog to select the G-code file
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        filepath, _ = QFileDialog.getOpenFileName(
+            self,
+            "Open GCode File",
+            "",
+            "GCode Files (*.gcode);;All Files (*)",
+            options=options
+        )
+
+        if filepath:  # If the user selects a file
+            self.serialConnectionDock.serialConnectionBackend.send_gcode_file(filepath)
+            print(f"GCode file sent: {filepath}")
+        else:
+            print("File open operation canceled.")
 
     def dock_generation(self):
         self.dock_widgets = {

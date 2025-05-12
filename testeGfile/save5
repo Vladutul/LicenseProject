@@ -1,0 +1,22 @@
+G21 ; Set units to mm
+G90 ; Absolute positioning
+G1 Z5 F500 ; Raise to safe height
+G0 X-34 Y1 ; Move to starting XY
+G1 Z0.00 F300 ; Lower to Z=0.00
+G1 X-27 Y1 F1000
+G1 X-27 Y7
+G1 X-34 Y7
+G1 X-34 Y1
+G1 Z1.00 F300 ; Lower to Z=1.00
+G1 X-27 Y1 F1000
+G1 X-27 Y7
+G1 X-34 Y7
+G1 X-34 Y1
+G1 Z2.00 F300 ; Lower to Z=2.00
+G1 X-27 Y1 F1000
+G1 X-27 Y7
+G1 X-34 Y7
+G1 X-34 Y1
+G1 Z7.50 F300 ; Raise to safe Z
+G0 X0 Y0 ; Home
+M2 ; End program

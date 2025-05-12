@@ -10,15 +10,15 @@ class serialConnectionBackend():
         self.parent = parent
         self.ser = None
         self.reader = None
-        self.filepath = "C:/Users/Vladutul/Documents/FisierTestgCodeLicenta/output.gcode"
+        self.filepath = "C:/Users/Vladutul/Documents/FisierTestgCodeLicenta/save6"
 
 
-    def send_gcode_file(self, wait_for='ok', delay=0.1):
-        if not os.path.isfile(self.filepath):
-            print(f"File not found: {self.filepath}")
+    def send_gcode_file(self, filepath, wait_for='ok', delay=0.1):
+        if not os.path.isfile(filepath):
+            print(f"File not found: {filepath}")
             return
     
-        with open(self.filepath, 'r', encoding='utf-8', errors='replace') as file:
+        with open(filepath, 'r', encoding='utf-8', errors='replace') as file:
             for line_number, line in enumerate(file, 1):
                 # Strip comments and whitespace
                 line = line.split(';', 1)[0].strip()
