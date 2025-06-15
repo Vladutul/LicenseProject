@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QWidget, QComboBox, QFileDialog, QPushButton, QAction, QLineEdit, QDockWidget, QGridLayout, QLayout, QHBoxLayout, QVBoxLayout, QMessageBox
 from PyQt5.QtCore import Qt
+from saveAndLoad import SaveAndLoadProjectClass
 from serialConnection import serialConnectionClass
 from shapeManipulation import shapeManipulationClass
 from connectionWindow import connectionWindowClass
@@ -12,10 +13,13 @@ class classUIinitialization(QMainWindow):
         self.setGeometry(100, 100, 1600, 900)        
 
         self.filepath = None
+        self.project_filepath = None
         self.serialConnectionDock = serialConnectionClass(self, None)
         self.shapeManiputationDock = shapeManipulationClass(self, None)
         self.connectionWindowDock = connectionWindowClass(self, None)
         self.gCodeGeneration = gCodeGenerationClass(self.shapeManiputationDock.plot_shapes_values_dictionary)
+        self.saveAndLoadRefference = SaveAndLoadProjectClass(self.shapeManiputationDock.plot_shapes_values_dictionary)
+
 
         self.dock_generation()
         self.addDockWidgets()
@@ -47,8 +51,51 @@ class classUIinitialization(QMainWindow):
         else:
             self.gCode_generation_wrapper_new_filepath()
 
+    def save_project(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        self.project_filepath, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save Project File",
+            "",
+            "Project Files (*.json);;All Files (*)",
+            options=options
+        )
+
+        if self.project_filepath:
+            self.saveAndLoadRefference.save_project(self.project_filepath)
+            print(f"Project saved to: {self.project_filepath}")
+            
+    def open_project(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        self.project_filepath, _ = QFileDialog.getOpenFileName(
+            self,
+            "Open Project File",
+            "",
+            "Project Files (*.json);;All Files (*)",
+            options=options
+        )
+
+        # Check if there is unsaved work
+        current_dict = self.shapeManiputationDock.plot_shapes_values_dictionary
+        if current_dict and len(current_dict) > 0:
+            reply = QMessageBox.question(
+                self,
+                "Unsaved Project",
+                "You have unsaved changes. Do you want to save the current project before opening a new one?",
+                QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel
+            )
+            if reply == QMessageBox.Yes:
+                self.save_project()
+            elif reply == QMessageBox.Cancel:
+                return  # Abort opening
+
+        if self.project_filepath:
+            self.shapeManiputationDock.plot_shapes_values_dictionary.clear()
+            self.saveAndLoadRefference.open_project(self.project_filepath)
+
     def GCodeSendingWrapper(self):
-        # Open a file dialog to select the G-code file
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         filepath, _ = QFileDialog.getOpenFileName(
@@ -119,9 +166,13 @@ class classUIinitialization(QMainWindow):
         #help_menu = menu_bar.addMenu('Help')
 
         #file_menu
-        open_saved_project = QAction('Open Project', self)
-        open_saved_project.setStatusTip('Open a saved project')
-        #open_saved_project.triggered.connect(self.dataset_treeview.open_file)
+        open_project = QAction('Open Project', self)
+        open_project.setStatusTip('Open a saved project')
+        open_project.triggered.connect(self.open_project)
+
+        save_project = QAction('Save Project', self)
+        save_project.setStatusTip('Save the current project')
+        save_project.triggered.connect(self.save_project)
 
         generate_gCode_existing_filepath = QAction('Generate GCode', self)
         generate_gCode_existing_filepath.setStatusTip('Generate GCode')
@@ -147,7 +198,8 @@ class classUIinitialization(QMainWindow):
             view_menu.addAction(action)
             self.dock_widgets[title]["action"] = action
 
-        file_menu.addAction(open_saved_project)
+        file_menu.addAction(open_project)
+        file_menu.addAction(save_project)
         file_menu.addAction(generate_gCode_existing_filepath)
         file_menu.addAction(generate_gCode_new_filepath)
         file_menu.addAction(send_gCode)
