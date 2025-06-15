@@ -1,6 +1,7 @@
 from qtpy.QtWidgets import QWidget, QLineEdit, QGridLayout
 import numpy as np
 import pyqtgraph.opengl as gl
+from PyQt5.QtGui import QVector3D  # Import QVector3D
 
 
 class createMiniFigure:
@@ -23,6 +24,7 @@ class createMiniFigure:
         values = self.generate_unused_real_values_parallelipiped()
         self.plot_shapes_values_dictionary[key] = self.create_shape_real_values(key, values, 'parallelipiped')
         self.plot_miniFigure_parallelipiped(*values[:-1], color=values[-1])
+        self.camera_focus_parallelipiped(*values[:-1])
         self.input_boxes[key] = {}
 
         mini_widget, mini_grid_layout = self.create_mini_widget_layout()
@@ -47,7 +49,7 @@ class createMiniFigure:
 
         mini_grid_layout.addWidget(self.view_miniFigure, 0, 1, 8, 1)
         self.parent_layout.addWidget(mini_widget)
-        
+
     def create_miniFigure_roundHole(self):
         id = len(self.plot_shapes_values_dictionary)
         key = f"id_{id}"
@@ -55,6 +57,7 @@ class createMiniFigure:
         values = self.generate_unused_real_values_roundHole()
         self.plot_shapes_values_dictionary[key] = self.create_shape_real_values(key, values, 'roundHole')
         self.plot_miniFigure_roundHole(*values[:-1], color=values[-1])
+        self.camera_focus_roundHole(*values[:-1])
         self.input_boxes[key] = {}
 
         mini_widget, mini_grid_layout = self.create_mini_widget_layout()
@@ -79,14 +82,15 @@ class createMiniFigure:
 
         mini_grid_layout.addWidget(self.view_miniFigure, 0, 1, 7, 1)
         self.parent_layout.addWidget(mini_widget)
-        
+
     def create_miniFigure_drillPlate(self):
         id = len(self.plot_shapes_values_dictionary)
         key = f"id_{id}"
 
         values = self.generate_unused_real_values_drillPlate()
         self.plot_shapes_values_dictionary[key] = self.create_shape_real_values(key, values, 'drillPlate')
-        self.plot_miniFigure_parallelipiped(*values[:-1], color=values[-1])
+        self.plot_miniFigure_drillPlate(*values[:-1], color=values[-1])
+        self.camera_focus_drillPlate(*values[:-1])
         self.input_boxes[key] = {}
 
         mini_widget, mini_grid_layout = self.create_mini_widget_layout()
@@ -107,18 +111,18 @@ class createMiniFigure:
             line_edit.setFixedWidth(50)
             self.input_boxes[key][label] = line_edit
             mini_grid_layout.addWidget(line_edit, i, 0)
-            line_edit.editingFinished.connect(lambda l=label, k=key: self.edit_shapeValues_roundHole(k))
+            line_edit.editingFinished.connect(lambda l=label, k=key: self.edit_shapeValues_drillPlate(k))
 
         mini_grid_layout.addWidget(self.view_miniFigure, 0, 1, 8, 1)
         self.parent_layout.addWidget(mini_widget)
-    
+
     def create_mini_widget_layout(self):
         mini_grid_layout = QGridLayout()
         mini_widget = QWidget()
         mini_widget.setLayout(mini_grid_layout)
         mini_widget.setFixedSize(300, 250)
         return mini_widget, mini_grid_layout
-    
+
     def create_shape_real_values(self, key, values, shape_type):
         if shape_type == 'parallelipiped':
             x_min, x_max, y_min, y_max, z_min, z_max, color = values
@@ -147,7 +151,7 @@ class createMiniFigure:
             }
         
         return self.plot_shapes_values_dictionary[key] 
-    
+
     def create_masks_for_real_values(self, key):
         if self.plot_shapes_values_dictionary[key]['shape'] == 'parallelipiped':
             pass
@@ -191,7 +195,7 @@ class createMiniFigure:
                              smooth=False, drawEdges=True, edgeColor=(0, 0, 0, 1))
         self.view_miniFigure.addItem(mesh)
         self.items_miniFigure.append(mesh)
-    
+
     def plot_miniFigure_roundHole(self, x_center, y_center, z_min, height, radius, color):
         resolution = 100
         offset = 0.2
@@ -232,34 +236,56 @@ class createMiniFigure:
         self.view_miniFigure.addItem(mesh)
         self.items_miniFigure.append(mesh)
 
+    def plot_miniFigure_drillPlate(self, x_min, x_max, y_min, y_max, z_min, z_max, color=(0.5, 0.5, 1, 0.5)):
+        verts = np.array([
+            [x_min, y_min, z_min],
+            [x_max, y_min, z_min],
+            [x_max, y_max, z_min],
+            [x_min, y_max, z_min],
+            [x_min, y_min, z_max],
+            [x_max, y_min, z_max],
+            [x_max, y_max, z_max],
+            [x_min, y_max, z_max]
+        ])
+
+        faces = np.array([
+            [0, 1, 2], [0, 2, 3],
+            [4, 5, 6], [4, 6, 7],
+            [0, 1, 5], [0, 5, 4],
+            [2, 3, 7], [2, 7, 6],
+            [1, 2, 6], [1, 6, 5], 
+            [3, 0, 4], [3, 4, 7],
+        ])
+
+        mesh = gl.GLMeshItem(vertexes=verts, faces=faces,
+                             faceColors=np.array([color] * len(faces)),
+                             smooth=False, drawEdges=True, edgeColor=(0, 0, 0, 1))
+        self.view_miniFigure.addItem(mesh)
+        self.items_miniFigure.append(mesh)
+
     def edit_shapeValues_parallelipiped(self, key):
         try:
-            # Get the input boxes for the specified key
             if key not in self.input_boxes:
                 print(f"No input boxes found for key: {key}")
                 return
 
             boxes = self.input_boxes[key]
 
-            # Read the updated values from the input boxes
-            x1 = float(boxes['x1'].text())
-            x2 = float(boxes['x2'].text())
-            y1 = float(boxes['y1'].text())
-            y2 = float(boxes['y2'].text())
-            z1 = float(boxes['z1'].text())
-            z2 = float(boxes['z2'].text())
+            x_min = float(boxes['x1'].text())
+            x_max = float(boxes['x2'].text())
+            y_min = float(boxes['y1'].text())
+            y_max = float(boxes['y2'].text())
+            z_min = float(boxes['z1'].text())
+            z_max = float(boxes['z2'].text())
 
-            # Retain the original color from the dictionary
             color = self.plot_shapes_values_dictionary[key]['real_values'][-1]
 
-            # Update the dictionary with the new values
-            self.plot_shapes_values_dictionary[key]['real_values'] = (x1, x2, y1, y2, z1, z2, color)
+            self.plot_shapes_values_dictionary[key]['real_values'] = (x_min, x_max, y_min, y_max, z_min, z_max, color)
 
-            # Clean the plot
             self.clear_plot()
 
-            # Redraw the plot with the updated values
-            self.plot_miniFigure_parallelipiped(x1, x2, y1, y2, z1, z2, color)
+            self.plot_miniFigure_parallelipiped(x_min, x_max, y_min, y_max, z_min, z_max, color)
+            self.camera_focus_parallelipiped(x_min, x_max, y_min, y_max, z_min, z_max)
             self.shapeManipulationRefference.update_plot()
 
         except ValueError:
@@ -275,11 +301,38 @@ class createMiniFigure:
             height = float(boxes['height'].text())
             radius = float(boxes['radius'].text())
 
-            color = self.plot_shapes_values_dictionary[key]['real_values'][-1]  # Retain the original color
+            color = self.plot_shapes_values_dictionary[key]['real_values'][-1]
 
             self.plot_shapes_values_dictionary[key]['real_values'] = (x_center, y_center, z_min, height, radius, color)
             self.clear_plot()
             self.plot_miniFigure_roundHole(x_center, y_center, z_min, height, radius, color)
+            self.camera_focus_roundHole(x_center, y_center, z_min, height, radius)
+            self.shapeManipulationRefference.update_plot()
+
+        except ValueError:
+            print("Invalid input: please enter valid numbers.")
+
+    def edit_shapeValues_drillPlate(self, key):
+        try:
+            if key not in self.input_boxes:
+                print(f"No input boxes found for key: {key}")
+                return
+
+            boxes = self.input_boxes[key]
+
+            x_min = float(boxes['x1'].text())
+            x_max = float(boxes['x2'].text())
+            y_min = float(boxes['y1'].text())
+            y_max = float(boxes['y2'].text())
+            z_min = float(boxes['z1'].text())
+            z_max = float(boxes['z2'].text())
+
+            color = self.plot_shapes_values_dictionary[key]['real_values'][-1]
+
+            self.plot_shapes_values_dictionary[key]['real_values'] = (x_min, x_max, y_min, y_max, z_min, z_max, color)
+            self.clear_plot()
+            self.plot_miniFigure_drillPlate(x_min, x_max, y_min, y_max, z_min, z_max, color)
+            self.camera_focus_drillPlate(x_min, x_max, y_min, y_max, z_min, z_max)
             self.shapeManipulationRefference.update_plot()
 
         except ValueError:
@@ -343,6 +396,31 @@ class createMiniFigure:
 
         return x_min, x_max, y_min, y_max, z_min, z_max, color    
     
+    def camera_focus_parallelipiped(self, x_min, x_max, y_min, y_max, z_min, z_max):
+        self.view_miniFigure.setCameraPosition(distance=20, elevation=10, azimuth=30)
+
+        center_x = (x_min + x_max) / 2
+        center_y = (y_min + y_max) / 2
+        center_z = (z_min + z_max) / 2
+
+        self.view_miniFigure.opts['center'] = QVector3D(center_x, center_y, center_z)
+
+    def camera_focus_roundHole(self, x_center, y_center, z_min, height, radius):
+        self.view_miniFigure.setCameraPosition(distance=20, elevation=10, azimuth=30)
+
+        center_z = z_min + (height / 2)
+
+        self.view_miniFigure.opts['center'] = QVector3D(x_center, y_center, center_z)
+
+    def camera_focus_drillPlate(self, x_min, x_max, y_min, y_max, z_min, z_max):
+        self.view_miniFigure.setCameraPosition(distance=50, elevation=10, azimuth=30)
+
+        center_x = (x_min + x_max) / 2
+        center_y = (y_min + y_max) / 2
+        center_z = (z_min + z_max) / 2
+
+        self.view_miniFigure.opts['center'] = QVector3D(center_x, center_y, center_z)
+
     def remove_shape(self, key, widget):
         if key in self.plot_shapes_values_dictionary:
             del self.plot_shapes_values_dictionary[key]
