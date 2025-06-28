@@ -1,5 +1,5 @@
-from serialConnectionBackend_pyFile import serialConnectionBackend
-from serialConnectionFrontend_pyFile import serialConnectionFrontend
+from serialConnectionBackend import serialConnectionBackend
+from serialConnectionFrontend import serialConnectionFrontend
 from serialThread import serialReadThreadClass
 
 class serialConnectionClass():

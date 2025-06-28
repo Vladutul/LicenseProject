@@ -38,8 +38,8 @@ class shapeManipulationClass(QWidget):
         self.left_vertical_mini_widget.setLayout(self.inside_vertical_mini_layout)
         self.inside_vertical_mini_layout.addLayout(self.vertical_mini_layout)
 
-        self.btn_plot = self.classUIinitializationRefference.create_button(self.update_plot, self.buttons_horizontal_layout_first_row, "Genereaza Piloni 3D")
-        self.btn_clear = self.classUIinitializationRefference.create_button(self.clear_plot, self.buttons_horizontal_layout_first_row, "Șterge Graficul")
+        #self.btn_plot = self.classUIinitializationRefference.create_button(self.update_plot, self.buttons_horizontal_layout_first_row, "Genereaza Piloni 3D")
+        #self.btn_clear = self.classUIinitializationRefference.create_button(self.clear_plot, self.buttons_horizontal_layout_first_row, "Șterge Graficul")
         self.create_roundFigure = self.classUIinitializationRefference.create_button(self.roundShape_figure_wrapper, self.buttons_horizontal_layout_first_row, "Hole")
         self.create_parallelipipedFigure = self.classUIinitializationRefference.create_button(self.parallelipipedShape_figure_wrapper, self.buttons_horizontal_layout_first_row, "Paralelipiped")
         self.create_drillPlateFigure = self.classUIinitializationRefference.create_button(self.drillPlate_figure_wrapper, self.buttons_horizontal_layout_first_row, "Drillplate")
@@ -55,16 +55,19 @@ class shapeManipulationClass(QWidget):
         mini = self.mini_create_wrapper()
         mini.create_miniFigure_parallelipiped()
         self.mini_instances.append(mini)
+        self.update_plot()
 
     def roundShape_figure_wrapper(self):
         mini = self.mini_create_wrapper()
         mini.create_miniFigure_roundHole()
         self.mini_instances.append(mini)
+        self.update_plot()
 
     def drillPlate_figure_wrapper(self):
         mini = self.mini_create_wrapper()
         mini.create_miniFigure_drillPlate()
         self.mini_instances.append(mini)
+        self.update_plot()
 
     def mini_create_wrapper(self):
         mini = createMiniFigure(

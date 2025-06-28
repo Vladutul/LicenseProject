@@ -32,22 +32,19 @@ class createMiniFigure:
         labels = ['x1', 'x2', 'y1', 'y2', 'z1', 'z2']
         default_values = [*values[:-1]]
 
-        show_button = self.classUIinitializationRefference.create_button(
-            lambda k=key: self.change_visibleState(k), mini_grid_layout, "Show", 0, 0)
         remove_button = self.classUIinitializationRefference.create_button(
-            lambda k=key, w=mini_widget: self.remove_shape(k, w), mini_grid_layout, "Remove", 1, 0)
+            lambda k=key, w=mini_widget: self.remove_shape(k, w), mini_grid_layout, "Remove", 0, 0)
 
-        show_button.setFixedSize(50, 25)
         remove_button.setFixedSize(50, 25)
 
-        for i, (label, value) in enumerate(zip(labels, default_values), start=2):
+        for i, (label, value) in enumerate(zip(labels, default_values), start=1):
             line_edit = QLineEdit(str(value))
             line_edit.setFixedWidth(50)
             self.input_boxes[key][label] = line_edit
             mini_grid_layout.addWidget(line_edit, i, 0)
             line_edit.editingFinished.connect(lambda l=label, k=key: self.edit_shapeValues_parallelipiped(k))
 
-        mini_grid_layout.addWidget(self.view_miniFigure, 0, 1, 8, 1)
+        mini_grid_layout.addWidget(self.view_miniFigure, 0, 1, 7, 1)
         self.parent_layout.addWidget(mini_widget)
 
     def create_miniFigure_roundHole(self):
@@ -65,22 +62,19 @@ class createMiniFigure:
         labels = ['x_center', 'y_center', 'z_min', 'height', 'radius']
         default_values = [*values[:-1]]
 
-        show_button = self.classUIinitializationRefference.create_button(
-            lambda k=key: self.change_visibleState(k), mini_grid_layout, "Edit", 0, 0)
         remove_button = self.classUIinitializationRefference.create_button(
-            lambda k=key, w=mini_widget: self.remove_shape(k, w), mini_grid_layout, "Remove", 1, 0)
+            lambda k=key, w=mini_widget: self.remove_shape(k, w), mini_grid_layout, "Remove", 0, 0)
 
-        show_button.setFixedSize(50, 25)
         remove_button.setFixedSize(50, 25)
 
-        for i, (label, value) in enumerate(zip(labels, default_values), start=2):
+        for i, (label, value) in enumerate(zip(labels, default_values), start=1):
             line_edit = QLineEdit(str(value))
             line_edit.setFixedWidth(50)
             self.input_boxes[key][label] = line_edit
             mini_grid_layout.addWidget(line_edit, i, 0)
             line_edit.editingFinished.connect(lambda l=label, k=key: self.edit_shapeValues_roundHole(k))
 
-        mini_grid_layout.addWidget(self.view_miniFigure, 0, 1, 7, 1)
+        mini_grid_layout.addWidget(self.view_miniFigure, 0, 1, 6, 1)
         self.parent_layout.addWidget(mini_widget)
 
     def create_miniFigure_drillPlate(self):
@@ -98,22 +92,19 @@ class createMiniFigure:
         labels = ['x1', 'x2', 'y1', 'y2', 'z1', 'z2']
         default_values = [*values[:-1]]
 
-        show_button = self.classUIinitializationRefference.create_button(
-            lambda k=key: self.change_visibleState(k), mini_grid_layout, "Show", 0, 0)
         remove_button = self.classUIinitializationRefference.create_button(
-            lambda k=key, w=mini_widget: self.remove_shape(k, w), mini_grid_layout, "Remove", 1, 0)
+            lambda k=key, w=mini_widget: self.remove_shape(k, w), mini_grid_layout, "Remove", 0, 0)
 
-        show_button.setFixedSize(50, 25)
         remove_button.setFixedSize(50, 25)
 
-        for i, (label, value) in enumerate(zip(labels, default_values), start=2):
+        for i, (label, value) in enumerate(zip(labels, default_values), start=1):
             line_edit = QLineEdit(str(value))
             line_edit.setFixedWidth(50)
             self.input_boxes[key][label] = line_edit
             mini_grid_layout.addWidget(line_edit, i, 0)
             line_edit.editingFinished.connect(lambda l=label, k=key: self.edit_shapeValues_drillPlate(k))
 
-        mini_grid_layout.addWidget(self.view_miniFigure, 0, 1, 8, 1)
+        mini_grid_layout.addWidget(self.view_miniFigure, 0, 1, 7, 1)
         self.parent_layout.addWidget(mini_widget)
 
     def create_mini_widget_layout(self):

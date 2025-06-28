@@ -20,7 +20,7 @@ class serialReadThreadClass(QThread):
                         try:
                             raw = self.ser.readline()
                             line = raw.decode('utf-8', errors='ignore').strip()
-                            if line:  # filter out empty/partial lines
+                            if line:
                                 self.data_received.emit(line)
                         except Exception as e:
                             print(f"Serial read error: {e}")

@@ -43,7 +43,8 @@ class PlotManager:
         self.view.addItem(mesh)
         self.items.append(mesh)
 
-    def plot_cylinder(self, x_center, y_center, z_min, height, radius=1.0, resolution=32, color=(1, 0, 0, 1)):
+    def plot_cylinder(self, x_center, y_center, z_min, height, radius=1.0, color=(1, 0, 0, 1)):
+        resolution = 32
         offset = 0.2
         height = height + offset
         theta = np.linspace(0, 2 * np.pi, resolution)
@@ -101,35 +102,35 @@ class PlotManager:
 
             if shape_type == 'parallelipiped':
                 x_min, x_max, y_min, y_max, z_min, z_max, color = real_values
-                self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color=(0.5, 0.5, 1, 0.5))
+                self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color)
                 top_mask = val.get('top_mask')
                 bottom_mask = val.get('bottom_mask')
 
                 if top_mask:
                     x_min, x_max, y_min, y_max, z_min, z_max = top_mask
-                    plot_mask_parallelipiped(x_min, x_max, y_min, y_max, z_min, z_max, color=(0, 1, 0, 0.5))
+                    plot_mask_parallelipiped(x_min, x_max, y_min, y_max, z_min, z_max, color)
 
                 if bottom_mask:
                     x_min, x_max, y_min, y_max, z_min, z_max = bottom_mask
-                    plot_mask_parallelipiped(x_min, x_max, y_min, y_max, z_min, z_max, color=(1, 0, 0, 0.5))
+                    plot_mask_parallelipiped(x_min, x_max, y_min, y_max, z_min, z_max, color)
 
             elif shape_type == 'roundHole':
                 x_center, y_center, z_min, height, radius, color = real_values
-                self.plot_cylinder(x_center, y_center, z_min, height, radius, color=color)
+                self.plot_cylinder(x_center, y_center, z_min, height, radius, color)
                 top_mask = val.get('top_mask')
                 bottom_mask = val.get('bottom_mask')
 
                 if top_mask:
                     x_center, y_center, z_min, height, radius, color = top_mask
-                    plot_mask_cylinder(x_center, y_center, z_min, height, radius, color=color)
+                    plot_mask_cylinder(x_center, y_center, z_min, height, radius, color)
                 
                 if bottom_mask:
                     x_center, y_center, z_min, height, radius, color = bottom_mask
-                    plot_mask_cylinder(x_center, y_center, z_min, height, radius, color=color)
+                    plot_mask_cylinder(x_center, y_center, z_min, height, radius, color)
             
             elif shape_type == 'drillPlate':
                 x_min, x_max, y_min, y_max, z_min, z_max, color = real_values
-                self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color=(0.5, 0.5, 1, 0.5))
+                self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color)
 
     def clear_plot(self):
         for item in self.items:

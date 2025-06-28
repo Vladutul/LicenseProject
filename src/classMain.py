@@ -10,7 +10,8 @@ from gCodeGeneration import gCodeGenerationClass
 class classUIinitialization(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setGeometry(100, 100, 1600, 900)        
+        self.setGeometry(100, 100, 1600, 900)
+        self.setWindowTitle("LicenseProject")        
 
         self.filepath = None
         self.project_filepath = None
@@ -26,7 +27,7 @@ class classUIinitialization(QMainWindow):
         self.createMenuBar()
 
     def gCode_generation_wrapper_new_filepath(self):
-        # Open a file dialog to select where to save the file
+
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         filepath, _ = QFileDialog.getSaveFileName(
@@ -37,7 +38,7 @@ class classUIinitialization(QMainWindow):
             options=options
         )
 
-        if filepath:  # If the user selects a file
+        if filepath:
             self.filepath = filepath
             self.gCodeGeneration.gcode_file_path = self.filepath
             self.gCodeGeneration.create_gCode_file()
@@ -77,7 +78,6 @@ class classUIinitialization(QMainWindow):
             options=options
         )
 
-        # Check if there is unsaved work
         current_dict = self.shapeManiputationDock.plot_shapes_values_dictionary
         if current_dict and len(current_dict) > 0:
             reply = QMessageBox.question(
@@ -89,7 +89,7 @@ class classUIinitialization(QMainWindow):
             if reply == QMessageBox.Yes:
                 self.save_project()
             elif reply == QMessageBox.Cancel:
-                return  # Abort opening
+                return 
 
         if self.project_filepath:
             self.shapeManiputationDock.plot_shapes_values_dictionary.clear()
@@ -106,7 +106,7 @@ class classUIinitialization(QMainWindow):
             options=options
         )
 
-        if filepath:  # If the user selects a file
+        if filepath:
             self.serialConnectionDock.serialConnectionBackend.send_gcode_file(filepath)
             print(f"GCode file sent: {filepath}")
         else:
@@ -122,7 +122,7 @@ class classUIinitialization(QMainWindow):
             },
             "ShapeManipulation": {
                 "widget": self.shapeManiputationDock,
-                "area": Qt.LeftDockWidgetArea,
+                "area": Qt.BottomDockWidgetArea,
                 "dock": None,
                 "action": None
             },
@@ -138,7 +138,11 @@ class classUIinitialization(QMainWindow):
         for dockName, info in self.dock_widgets.items():
             dock = self.createDockWidget(dockName, info["widget"])
             self.addDockWidget(info["area"], dock)
-            info["dock"] = dock  # Store reference to dock widget
+            info["dock"] = dock
+
+            if dockName == "ConnectionWindow":
+                dock.hide()
+                info["action"] = None 
 
     def createDockWidget(self, dockName, widget):
         dock = QDockWidget(dockName, self)
@@ -193,7 +197,10 @@ class classUIinitialization(QMainWindow):
         #view_menu
         for title, info in self.dock_widgets.items():
             action = QAction(title, self, checkable=True)
-            action.setChecked(True)  # Initially checked
+            if title == "ConnectionWindow":
+                action.setChecked(False)
+            else:
+                action.setChecked(True)
             action.triggered.connect(lambda checked, t=title: self.toggleDockWidget(t, checked))
             view_menu.addAction(action)
             self.dock_widgets[title]["action"] = action
@@ -267,10 +274,11 @@ class classUIinitialization(QMainWindow):
 
     def create_text_box(self, layout):
         textbox = QLineEdit()
-        textbox.move(20, 20)
-        textbox.resize(280, 40)
+        textbox.setFixedWidth(600)
+        textbox.setFixedHeight(40)
         self.add_to_layout(textbox, layout)
         return textbox
+
 
     def create_button(self, function, layout, name, row=0, col=0):
         button = QPushButton(name)

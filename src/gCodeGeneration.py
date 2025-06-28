@@ -17,7 +17,7 @@ class gCodeGenerationClass:
 
             if data.get('shape') == 'parallelipiped':
                 real_values = data.get('real_values', [])
-                if len(real_values) == 7:  # Ensure the tuple has 7 elements
+                if len(real_values) == 7:
                     x_min, x_max, y_min, y_max, z_min, z_max, color = real_values
                     gCode_text = self.processed_drill_parallelepiped_data(x_min, x_max, y_min, y_max, z_min, z_max)
 
@@ -28,8 +28,8 @@ class gCodeGenerationClass:
                 pass
             
             if gCode_text:
-                with open(self.gcode_file_path, 'a+') as file:  # 'a+' creates the file if it doesn't exist
-                    file.write(gCode_text + '\n')  # Append the G-code text
+                with open(self.gcode_file_path, 'a+') as file:
+                    file.write(gCode_text + '\n')
 
     
     def backup_gcode(self):
