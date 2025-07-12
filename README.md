@@ -59,6 +59,11 @@ python src/main.py
 - Manipulate shapes in the "Shape Manipulation" dock.
 - Connect to your Arduino in the "Serial Connection" dock and send GCode or manual commands.
 
+## Demo
+
+Watch a demo of the project on YouTube:  
+[![YouTube Video](https://img.shields.io/badge/Watch%20on-YouTube-red?logo=youtube)](https://www.youtube.com/your-video-link)
+
 ## License
 
 This project is for educational purposes.
