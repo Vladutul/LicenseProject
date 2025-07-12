@@ -61,8 +61,7 @@ python src/main.py
 
 ## Demo
 
-Watch a demo of the project on YouTube:  
-[![YouTube Video](https://img.shields.io/badge/Watch%20on-YouTube-red?logo=youtube)](https://www.youtube.com/your-video-link)
+Watch the demo here: [https://youtube.com/shorts/N382mkyIIzc?feature=share](https://youtube.com/shorts/N382mkyIIzc?feature=share)
 
 ## License
 
