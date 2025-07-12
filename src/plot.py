@@ -91,10 +91,10 @@ class PlotManager:
         self.clear_plot()
 
         def plot_mask_parallelipiped(x_min, x_max, y_min, y_max, z_min, z_max, color):
-            self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color=color)
+            self.plot_box(x_min, x_max, y_min, y_max, z_min, z_max, color)
 
         def plot_mask_cylinder(x_center, y_center, z_min, height, radius, color):
-            self.plot_cylinder(x_center, y_center, z_min, height, radius, color=color)
+            self.plot_cylinder(x_center, y_center, z_min, height, radius, color)
 
         for key, val in self.plot_shapes_values_dictionary.items():
             shape_type = val.get('shape')

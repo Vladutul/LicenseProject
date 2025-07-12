@@ -95,6 +95,9 @@ class classUIinitialization(QMainWindow):
             self.shapeManiputationDock.plot_shapes_values_dictionary.clear()
             self.saveAndLoadRefference.open_project(self.project_filepath)
 
+        self.shapeManiputationDock.plotManager.clear_plot()
+        self.shapeManiputationDock.plotManager.update_plot()
+
     def GCodeSendingWrapper(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog

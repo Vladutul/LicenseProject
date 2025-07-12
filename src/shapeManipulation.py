@@ -19,7 +19,7 @@ class shapeManipulationClass(QWidget):
 
         self.plot_container_widget = QWidget()
         self.plot_container_layout = QGridLayout()
-
+# 
         self.left_vertical_mini_widget = QWidget()
         self.vertical_mini_layout = QVBoxLayout()
         self.inside_vertical_mini_layout = QHBoxLayout()

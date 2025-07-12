@@ -31,7 +31,6 @@ class gCodeGenerationClass:
                 with open(self.gcode_file_path, 'a+') as file:
                     file.write(gCode_text + '\n')
 
-    
     def backup_gcode(self):
         xmin = float(10)
         xmax = float(50)
@@ -44,7 +43,6 @@ class gCodeGenerationClass:
 
         with open(self.gcode_file_path, 'w') as file:
             file.write(gCode_text)
-
 
     def processed_drill_parallelepiped_data(self, xmin, xmax, ymin, ymax, zmin, zmax, z_step=1.0, feed_xy=1000, feed_z=300):
         gcode = []
