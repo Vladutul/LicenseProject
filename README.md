@@ -1,4 +1,4 @@
-# LicenseProject
+# LicenseProject - CNC Drilling Machine – DIY Project with Arduino and Python Interface
 
 A PyQt5-based application for 3D shape manipulation, GCode generation, and serial communication with Arduino.
 
